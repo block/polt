@@ -1,0 +1,47 @@
+services:
+  mysql:
+    # https://docs.aws.amazon.com/AmazonRDS/latest/AuroraMySQLReleaseNotes/AuroraMySQL.Updates.30Updates.html
+    image: mysql:8.0.34 # Carry the latest version in this top level file and use per version files for lower versions.
+    ports: [ '8034:3306' ]
+    # to supress mbind: Operation not permitted in CI
+    # https://stackoverflow.com/a/55706057
+    cap_add:
+      - SYS_NICE
+    environment:
+      MYSQL_ROOT_PASSWORD: msandbox
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD
+      start_period: 1s
+      interval: 1s
+      timeout: 2s
+      retries: 60
+    volumes:
+      - mysql-standalone-data-dir:/var/lib/mysql
+      - ./bootstrap.sql:/docker-entrypoint-initdb.d/bootstrap.sql
+
+  test:
+    build:
+      context: ../
+    command: go test -race -v ./...
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_DSN: tsandbox:msandbox@tcp(mysql)/test
+
+  buildandrun:
+    build:
+      context: ../
+    command: scripts/build_and_run_docker.sh
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      HOST: mysql:3306
+      USERNAME: msandbox
+      PASSWORD: msandbox
+      DATABASE: test
+      TABLE: t1
+
+volumes:
+  mysql-standalone-data-dir:

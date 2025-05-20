@@ -1,0 +1,4 @@
+#!/bin/bash
+
+golangci-lint run \
+    --new-from-rev="${CONVERGENCE_BRANCH:-main}"

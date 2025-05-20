@@ -1,0 +1,36 @@
+run:
+  tests: true
+
+output:
+  print-issued-lines: false
+
+linters:
+  enable-all: true
+  disable:
+    - gomoddirectives
+    - exhaustruct
+    - funlen
+    - gci
+    - gochecknoglobals
+    - gocritic
+    - gofumpt
+    - gomnd
+    - gosec
+    - lll
+    - mnd
+    - paralleltest
+    - testpackage
+    - varnamelen
+    - wrapcheck
+    - wsl
+    - depguard
+    - tagalign
+    - tagliatelle
+    - ireturn
+    - godox
+    - err113
+    - execinquery
+
+issues:
+  max-per-linter: 0
+  max-same: 0
