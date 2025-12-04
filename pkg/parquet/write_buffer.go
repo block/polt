@@ -207,6 +207,9 @@ func float64Val(i interface{}) (float64, error) {
 		return v, nil
 	case float32:
 		return float64(v), nil
+	case []byte:
+		// MySQL returns DECIMAL values as []byte ([]uint8 is an alias for []byte)
+		return strconv.ParseFloat(string(v), 64)
 	default:
 		return 0, fmt.Errorf("cannot convert %v to float64", i)
 	}

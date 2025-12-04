@@ -488,3 +488,168 @@ func uniqueInts(input []int32) []int32 {
 
 	return u
 }
+
+func TestArchiveRunnerWithGeneratedColumns(t *testing.T) {
+	test.RunSQL(t, `DROP TABLE IF EXISTS t1_ar_gen_archived, _t1_ar_gen_stage_runid`)
+	test.RunSQL(t, "DROP TABLE IF EXISTS polt.runs")
+	test.RunSQL(t, "DROP TABLE IF EXISTS polt.checkpoints_ar_runid")
+
+	// Create staging table with generated columns (both VIRTUAL and STORED)
+	table := `CREATE TABLE _t1_ar_gen_stage_runid (
+		id int(11) NOT NULL AUTO_INCREMENT,
+		first_name varchar(100) NOT NULL,
+		last_name varchar(100) NOT NULL,
+		full_name varchar(201) AS (CONCAT(first_name, ' ', last_name)) VIRTUAL,
+		name_length int AS (LENGTH(CONCAT(first_name, ' ', last_name))) STORED,
+		created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_name_length (name_length)
+	)`
+	test.RunSQL(t, table)
+
+	// Insert test data
+	test.RunSQL(t, `INSERT INTO _t1_ar_gen_stage_runid (first_name, last_name) VALUES ('John', 'Doe')`)
+	test.RunSQL(t, `INSERT INTO _t1_ar_gen_stage_runid (first_name, last_name) VALUES ('Jane', 'Smith')`)
+	test.RunSQL(t, `INSERT INTO _t1_ar_gen_stage_runid (first_name, last_name) VALUES ('Bob', 'Johnson')`)
+	test.RunSQL(t, `INSERT INTO _t1_ar_gen_stage_runid (first_name, last_name) VALUES ('Alice', 'Williams')`)
+
+	cfg, err := mysql.ParseDSN(test.DSN())
+	require.NoError(t, err)
+
+	archive := &ArchiveRunnerConfig{
+		DstPath:         "t1_ar_gen_archived",
+		DstType:         "table",
+		StartedBy:       startedBy,
+		RunID:           arRunID,
+		StgTbl:          "_t1_ar_gen_stage_runid",
+		Database:        cfg.DBName,
+		Host:            cfg.Addr,
+		Username:        cfg.User,
+		Password:        cfg.Passwd,
+		AuditDB:         "polt",
+		LockWaitTimeout: 30 * time.Second,
+		Threads:         16,
+	}
+
+	a := NewArchiveRunnerForTest(archive, logrus.New())
+	require.NoError(t, a.Run(context.Background()))
+
+	// Verify that the archive table was created
+	db, err := sql.Open("mysql", test.DSN())
+	require.NoError(t, err)
+	defer db.Close()
+
+	// Check that all rows were archived
+	archivedCount := test.GetCount(t, db, "t1_ar_gen_archived", "1=1")
+	require.Equal(t, 4, archivedCount)
+
+	// Verify that generated columns exist in the archive table
+	var columnCount int
+	err = db.QueryRow("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'test' AND TABLE_NAME = 't1_ar_gen_archived' AND COLUMN_NAME IN ('full_name', 'name_length')").Scan(&columnCount)
+	require.NoError(t, err)
+	require.Equal(t, 2, columnCount, "Generated columns should exist in archive table")
+
+	// Verify the generated column values are correct in the archive table
+	var fullName string
+	var nameLength int
+	err = db.QueryRow("SELECT full_name, name_length FROM t1_ar_gen_archived WHERE first_name = 'Alice' LIMIT 1").Scan(&fullName, &nameLength)
+	require.NoError(t, err)
+	require.Equal(t, "Alice Williams", fullName)
+	require.Equal(t, 14, nameLength)
+
+	// Test that the archiverunner is successful
+	successful, err := checkIfSuccessfullyRan(context.Background(), &Run{
+		mode:       archiveMode,
+		ID:         arRunID,
+		db:         a.db,
+		auditDB:    a.auditDB,
+		inputQuery: "",
+	})
+	require.NoError(t, err)
+	require.True(t, successful)
+
+	// Test that checkpoints table is deleted after the archive phase finishes successfully
+	require.False(t, test.TableExists(t, "polt", "checkpoints_"+arRunID, a.db))
+
+	a.Close()
+}
+
+func TestArchiveRunnerWithGeneratedColumns_ParquetFile(t *testing.T) {
+	parquetFile := "t1_ar_gen_archived.parquet"
+	test.DeleteFile(t, parquetFile)
+
+	test.RunSQL(t, `DROP TABLE IF EXISTS _t1_ar_gen_pq_stage_runid`)
+	test.RunSQL(t, "DROP TABLE IF EXISTS polt.runs")
+	test.RunSQL(t, "DROP TABLE IF EXISTS polt.checkpoints_ar_runid")
+
+	// Create staging table with generated columns
+	tbl := `CREATE TABLE _t1_ar_gen_pq_stage_runid (
+		id int NOT NULL AUTO_INCREMENT,
+		price decimal(10,2) NOT NULL,
+		tax_rate decimal(5,4) NOT NULL DEFAULT 0.0825,
+		tax_amount decimal(10,2) AS (price * tax_rate) STORED,
+		total_price decimal(10,2) AS (price + (price * tax_rate)) VIRTUAL,
+		created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id)
+	)`
+	test.RunSQL(t, tbl)
+
+	// Insert test data
+	test.RunSQL(t, `INSERT INTO _t1_ar_gen_pq_stage_runid (price, tax_rate) VALUES (100.00, 0.0825)`)
+	test.RunSQL(t, `INSERT INTO _t1_ar_gen_pq_stage_runid (price, tax_rate) VALUES (250.50, 0.0900)`)
+	test.RunSQL(t, `INSERT INTO _t1_ar_gen_pq_stage_runid (price, tax_rate) VALUES (75.25, 0.0750)`)
+
+	cfg, err := mysql.ParseDSN(test.DSN())
+	require.NoError(t, err)
+
+	archive := &ArchiveRunnerConfig{
+		DstPath:         parquetFile,
+		DstType:         destinations.LocalParquetFile.String(),
+		StartedBy:       startedBy,
+		RunID:           arRunID,
+		StgTbl:          "_t1_ar_gen_pq_stage_runid",
+		Database:        cfg.DBName,
+		Host:            cfg.Addr,
+		Username:        cfg.User,
+		Password:        cfg.Passwd,
+		AuditDB:         "polt",
+		LockWaitTimeout: 30 * time.Second,
+		Threads:         2,
+	}
+
+	a := NewArchiveRunnerForTest(archive, logrus.New())
+	require.NoError(t, a.Run(context.Background()))
+
+	// Test the data in parquet file
+	var totalRowsArchived int
+	parquetFiles := test.FindParquetFile(t, "t1_ar_gen_archived.parquet", true)
+	require.Len(t, parquetFiles, 1)
+	props := parquet.NewReaderProperties(memory.DefaultAllocator)
+	fileReader, err := file.OpenParquetFile(path.Clean(parquetFiles[0]), false, file.WithReadProps(props))
+	require.NoError(t, err)
+	defer fileReader.Close()
+
+	require.Equal(t, 1, fileReader.NumRowGroups())
+	rgr := fileReader.RowGroup(0)
+	totalRowsArchived += int(rgr.NumRows())
+	require.Equal(t, 3, totalRowsArchived)
+
+	// Verify that all columns including generated ones are in the parquet file
+	require.Equal(t, 6, fileReader.MetaData().Schema.NumColumns(), "Should have 6 columns including generated columns")
+
+	// Test that the archiverunner is successful
+	successful, err := checkIfSuccessfullyRan(context.Background(), &Run{
+		mode:       archiveMode,
+		ID:         arRunID,
+		db:         a.db,
+		auditDB:    a.auditDB,
+		inputQuery: "",
+	})
+	require.NoError(t, err)
+	require.True(t, successful)
+
+	// Test that checkpoints table is deleted after the archive phase finishes successfully
+	require.False(t, test.TableExists(t, "polt", "checkpoints_"+arRunID, a.db))
+
+	a.Close()
+}

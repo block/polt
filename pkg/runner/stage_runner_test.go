@@ -403,6 +403,89 @@ func TestResumeFromCheckpoint(t *testing.T) {
 	require.NoError(t, s1.Close())
 }
 
+func TestStageRunnerWithGeneratedColumns(t *testing.T) {
+	test.RunSQL(t, `DROP TABLE IF EXISTS t1_sr_gen, _t1_sr_gen_stage_runid`)
+	test.RunSQL(t, "DROP TABLE IF EXISTS polt.runs")
+	test.RunSQL(t, "DROP TABLE IF EXISTS polt.checkpoints_runid")
+
+	// Create table with generated columns (both VIRTUAL and STORED)
+	table := `CREATE TABLE t1_sr_gen (
+		id int(11) NOT NULL AUTO_INCREMENT,
+		first_name varchar(100) NOT NULL,
+		last_name varchar(100) NOT NULL,
+		full_name varchar(201) AS (CONCAT(first_name, ' ', last_name)) VIRTUAL,
+		name_length int AS (LENGTH(CONCAT(first_name, ' ', last_name))) STORED,
+		created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_name_length (name_length)
+	)`
+	test.RunSQL(t, table)
+
+	// Insert test data
+	test.RunSQL(t, `INSERT INTO t1_sr_gen (first_name, last_name) VALUES ('John', 'Doe')`)
+	test.RunSQL(t, `INSERT INTO t1_sr_gen (first_name, last_name) VALUES ('Jane', 'Smith')`)
+	test.RunSQL(t, `INSERT INTO t1_sr_gen (first_name, last_name) VALUES ('Bob', 'Johnson')`)
+	test.RunSQL(t, `INSERT INTO t1_sr_gen (first_name, last_name) VALUES ('Alice', 'Williams')`)
+
+	cfg, err := mysql.ParseDSN(test.DSN())
+	require.NoError(t, err)
+
+	srConfig := &StageRunnerConfig{
+		Table:           "t1_sr_gen",
+		Threads:         16,
+		RunID:           runID,
+		TargetChunkTime: 10 * time.Millisecond,
+		StartedBy:       startedBy,
+		Host:            cfg.Addr,
+		Username:        cfg.User,
+		Password:        cfg.Passwd,
+		Database:        cfg.DBName,
+		AuditDB:         "polt",
+		Query:           "SELECT * FROM t1_sr_gen WHERE name_length > 8",
+	}
+
+	s := NewStageRunnerForTest(srConfig, logrus.New())
+	stgTbl, err := s.Run(context.Background())
+	require.NoError(t, err)
+	require.Equal(t, "_t1_sr_gen_stage_runid", stgTbl)
+
+	// Verify that the staging table was created and data was copied
+	db, err := sql.Open("mysql", test.DSN())
+	require.NoError(t, err)
+	defer db.Close()
+
+	// Check that rows matching the query were staged
+	stagedCount := test.GetCount(t, db, "_t1_sr_gen_stage_runid", "name_length > 8")
+	require.Greater(t, stagedCount, 0)
+
+	// Verify that generated columns exist in the staging table
+	var columnCount int
+	err = db.QueryRow("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'test' AND TABLE_NAME = '_t1_sr_gen_stage_runid' AND COLUMN_NAME IN ('full_name', 'name_length')").Scan(&columnCount)
+	require.NoError(t, err)
+	require.Equal(t, 2, columnCount, "Generated columns should exist in staging table")
+
+	// Verify the generated column values are correct
+	var fullName string
+	var nameLength int
+	err = db.QueryRow("SELECT full_name, name_length FROM _t1_sr_gen_stage_runid WHERE first_name = 'Alice' LIMIT 1").Scan(&fullName, &nameLength)
+	require.NoError(t, err)
+	require.Equal(t, "Alice Williams", fullName)
+	require.Equal(t, 14, nameLength)
+
+	// Test that run entry is created and status is set to Succeeded
+	successful, err := checkIfSuccessfullyRan(context.Background(), &Run{
+		mode:       stageMode,
+		ID:         s.runID,
+		auditDB:    s.auditDB,
+		db:         s.db,
+		inputQuery: s.query,
+	})
+	require.NoError(t, err)
+	assert.True(t, successful)
+
+	s.Close()
+}
+
 func TestResumeFromDBFailure(t *testing.T) {
 	// Lower the checkpoint interval for testing.
 	checkpointDumpInterval = 600 * time.Nanosecond

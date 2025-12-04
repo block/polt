@@ -221,11 +221,13 @@ func (s *Stager) stageChunk(ctx context.Context, tx *sql.Tx, chunk *table.Chunk)
 	// in resuming from checkpoint we will be re-applying some of the
 	// previous executed work.
 
+	// Use NonGeneratedColumns to exclude generated columns from INSERT
+	// Generated columns cannot be explicitly inserted, they are computed automatically
 	insertChunkQuery := fmt.Sprintf("INSERT IGNORE INTO %s (%s,%s) SELECT %s,%d FROM %s FORCE INDEX (%s) WHERE %s LOCK IN SHARE MODE",
 		s.stageTbl.QuotedName,
-		strings.Join(s.srcTbl.Columns, ", "),
+		strings.Join(s.srcTbl.NonGeneratedColumns, ", "),
 		boot.TryNumColName,
-		strings.Join(s.srcTbl.Columns, ", "),
+		strings.Join(s.srcTbl.NonGeneratedColumns, ", "),
 		s.tryNum,
 		s.srcTbl.QuotedName,
 		s.key,
