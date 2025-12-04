@@ -4,14 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/cashapp/spirit/pkg/dbconn"
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/table"
 	"github.com/go-sql-driver/mysql"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
 
@@ -112,7 +112,9 @@ func LockExists(t *testing.T, db *sql.DB, tableName string) bool {
 	require.NoError(t, err)
 
 	// Try to get advisory lock on the table, if there is an error then the lock already exists
-	lock, err = dbconn.NewMetadataLock(context.Background(), DSN(), srcTbl, logrus.New())
+	dbConfig := dbconn.NewDBConfig()
+	logger := slog.Default()
+	lock, err = dbconn.NewMetadataLock(context.Background(), DSN(), []*table.TableInfo{srcTbl}, dbConfig, logger)
 
 	return err != nil
 }

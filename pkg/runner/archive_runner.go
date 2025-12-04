@@ -5,20 +5,21 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/block/polt/pkg/archive"
-	"github.com/block/polt/pkg/audit"
-	"github.com/block/polt/pkg/boot"
-	"github.com/block/polt/pkg/destinations"
-	"github.com/block/polt/pkg/random"
-	"github.com/block/polt/pkg/upload"
-	"github.com/cashapp/spirit/pkg/dbconn"
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/table"
 	"github.com/siddontang/loggers"
 	"github.com/sirupsen/logrus"
+	"github.com/squareup/polt/pkg/archive"
+	"github.com/squareup/polt/pkg/audit"
+	"github.com/squareup/polt/pkg/boot"
+	"github.com/squareup/polt/pkg/destinations"
+	"github.com/squareup/polt/pkg/random"
+	"github.com/squareup/polt/pkg/upload"
 )
 
 const archiveMode = "archive"
@@ -255,7 +256,8 @@ func (ar *ArchiveRunner) boot(ctx context.Context) (*boot.ArchiveBooter, error) 
 		return nil, fmt.Errorf("failed post-setup checks: %w", err)
 	}
 	// Get advisory lock on the table, this will be unlocked in Close() method.
-	ar.lock, err = dbconn.NewMetadataLock(ctx, ar.dsn, ab.SrcTbl, ar.logger)
+	dbConfig := dbconn.NewDBConfig()
+	ar.lock, err = dbconn.NewMetadataLock(ctx, ar.dsn, []*table.TableInfo{ab.SrcTbl}, dbConfig, slog.Default())
 	if err != nil {
 		return nil, fmt.Errorf("failed to acquire advisory lock for staging: %w", err)
 	}

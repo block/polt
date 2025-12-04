@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"math"
 	"math/rand"
 	"strings"
@@ -12,13 +13,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/block/polt/pkg/audit"
-	"github.com/block/polt/pkg/boot"
-	"github.com/block/polt/pkg/query"
-	"github.com/cashapp/spirit/pkg/dbconn"
-	"github.com/cashapp/spirit/pkg/table"
-	"github.com/cashapp/spirit/pkg/throttler"
+	"github.com/block/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/table"
+	"github.com/block/spirit/pkg/throttler"
 	"github.com/siddontang/loggers"
+	"github.com/squareup/polt/pkg/audit"
+	"github.com/squareup/polt/pkg/boot"
+	"github.com/squareup/polt/pkg/query"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -68,7 +69,8 @@ type StagerConfig struct {
 
 // NewStager creates a new stager, from a checkpoint (copyRowsAt, copyRows).
 func NewStager(sconfig *StagerConfig, chk *audit.Checkpoint) (*Stager, error) {
-	chunker, err := table.NewCompositeChunker(sconfig.SrcTbl, sconfig.ChunkDuration, sconfig.Logger, sconfig.Key, sconfig.Where)
+	// Use slog.Default() for the chunker since spirit now uses slog.Logger
+	chunker, err := table.NewCompositeChunker(sconfig.SrcTbl, sconfig.ChunkDuration, slog.Default(), sconfig.Key, sconfig.Where)
 	if err != nil {
 		return &Stager{}, err
 	}
@@ -97,7 +99,7 @@ func NewStager(sconfig *StagerConfig, chk *audit.Checkpoint) (*Stager, error) {
 
 	if chk != nil {
 		// Overwrite the previously attached chunker with one at a specific watermark.
-		if err := s.chunker.OpenAtWatermark(chk.CopiedUntil, table.Datum{}); err != nil {
+		if err := s.chunker.OpenAtWatermark(chk.CopiedUntil); err != nil {
 			return s, err
 		}
 		// Success from this point on
@@ -297,7 +299,7 @@ func (s *Stager) RetryableStageChunk(ctx context.Context, chunk *table.Chunk) er
 
 	chunkProcessingTime := time.Since(startTime)
 	s.logger.Debugf("ChunkProcessing time %v for chunk %v", chunkProcessingTime, chunk.String())
-	s.chunker.Feedback(chunk, chunkProcessingTime)
+	s.chunker.Feedback(chunk, chunkProcessingTime, uint64(copiedRows))
 
 	return nil
 }

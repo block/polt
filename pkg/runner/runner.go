@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/block/polt/pkg/audit"
-	"github.com/block/polt/pkg/boot"
-	"github.com/cashapp/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/dbconn"
+	"github.com/squareup/polt/pkg/audit"
+	"github.com/squareup/polt/pkg/boot"
 )
 
 type Status int64

@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/block/polt/pkg/audit"
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/table"
+	"github.com/squareup/polt/pkg/audit"
 )
 
 type ArchiveBooter struct {

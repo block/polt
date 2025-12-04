@@ -3,14 +3,15 @@ package parquet
 import (
 	"context"
 	"database/sql"
+	"log/slog"
 	"testing"
 	"time"
 
 	"github.com/apache/arrow-go/v18/arrow"
 	"github.com/apache/arrow-go/v18/arrow/array"
 	"github.com/apache/arrow-go/v18/arrow/memory"
-	"github.com/block/polt/pkg/test"
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/table"
+	"github.com/squareup/polt/pkg/test"
 	"github.com/stretchr/testify/require"
 )
 
@@ -74,7 +75,7 @@ func TestNewParquetManagerAddChunk(t *testing.T) {
 		},
 	}
 	// Add the chunk
-	pm.AddChunk(chunk, 1*time.Second)
+	pm.AddChunk(chunk, 1*time.Second, 0)
 	// Verify the chunk was added correctly
 	require.Len(t, pm.bufferedChunks, 1, "BufferedChunks should have one element after adding a chunk")
 	require.Equal(t, chunk, pm.bufferedChunks[0].Chunk, "Chunk should be the same as the one added")
@@ -101,7 +102,7 @@ func TestNewParquetManagerFlush(t *testing.T) {
 	schema, err := MysqlToArrowSchema(db, "t_flush")
 	require.NoError(t, err)
 
-	chunker, err := table.NewChunker(ti, 1*time.Second, nil)
+	chunker, err := table.NewChunker(ti, nil, 1*time.Second, slog.Default())
 	require.NoError(t, err)
 
 	pm := NewWriteBuffer(schema, chunker, &NullUploader{}, 0)
@@ -114,7 +115,7 @@ func TestNewParquetManagerFlush(t *testing.T) {
 	require.NoError(t, err)
 
 	// Add the chunk
-	pm.AddChunk(chunk, 1*time.Second)
+	pm.AddChunk(chunk, 1*time.Second, 0)
 	// Flush the chunks
 	pm.Flush(context.Background())
 
