@@ -10,16 +10,16 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/block/polt/pkg/archive"
+	"github.com/block/polt/pkg/audit"
+	"github.com/block/polt/pkg/boot"
+	"github.com/block/polt/pkg/destinations"
+	"github.com/block/polt/pkg/random"
+	"github.com/block/polt/pkg/upload"
 	"github.com/block/spirit/pkg/dbconn"
 	"github.com/block/spirit/pkg/table"
 	"github.com/siddontang/loggers"
 	"github.com/sirupsen/logrus"
-	"github.com/squareup/polt/pkg/archive"
-	"github.com/squareup/polt/pkg/audit"
-	"github.com/squareup/polt/pkg/boot"
-	"github.com/squareup/polt/pkg/destinations"
-	"github.com/squareup/polt/pkg/random"
-	"github.com/squareup/polt/pkg/upload"
 )
 
 const archiveMode = "archive"

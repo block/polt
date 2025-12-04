@@ -10,8 +10,8 @@ import (
 	"github.com/apache/arrow-go/v18/arrow"
 	"github.com/apache/arrow-go/v18/arrow/array"
 	"github.com/apache/arrow-go/v18/arrow/memory"
+	"github.com/block/polt/pkg/test"
 	"github.com/block/spirit/pkg/table"
-	"github.com/squareup/polt/pkg/test"
 	"github.com/stretchr/testify/require"
 )
 

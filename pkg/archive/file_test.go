@@ -10,11 +10,11 @@ import (
 	"github.com/apache/arrow-go/v18/arrow/memory"
 	"github.com/apache/arrow-go/v18/parquet"
 	"github.com/apache/arrow-go/v18/parquet/file"
+	"github.com/block/polt/pkg/test"
+	"github.com/block/polt/pkg/upload"
 	"github.com/block/spirit/pkg/table"
 	"github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
-	"github.com/squareup/polt/pkg/test"
-	"github.com/squareup/polt/pkg/upload"
 	"github.com/stretchr/testify/require"
 )
 

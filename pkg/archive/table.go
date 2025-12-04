@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/block/polt/pkg/boot"
 	"github.com/block/spirit/pkg/dbconn"
 	"github.com/block/spirit/pkg/table"
-	"github.com/squareup/polt/pkg/boot"
 )
 
 type Table struct {

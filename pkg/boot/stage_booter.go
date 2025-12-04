@@ -6,10 +6,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/block/polt/pkg/audit"
+	"github.com/block/polt/pkg/query"
 	"github.com/block/spirit/pkg/dbconn"
 	"github.com/block/spirit/pkg/table"
-	"github.com/squareup/polt/pkg/audit"
-	"github.com/squareup/polt/pkg/query"
 )
 
 const MaxTableLen = 64

@@ -11,14 +11,14 @@ import (
 	"time"
 
 	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/block/polt/pkg/audit"
+	"github.com/block/polt/pkg/boot"
+	"github.com/block/polt/pkg/parquet"
+	"github.com/block/polt/pkg/stage"
+	"github.com/block/polt/pkg/upload"
 	"github.com/block/spirit/pkg/dbconn"
 	"github.com/block/spirit/pkg/table"
 	"github.com/siddontang/loggers"
-	"github.com/squareup/polt/pkg/audit"
-	"github.com/squareup/polt/pkg/boot"
-	"github.com/squareup/polt/pkg/parquet"
-	"github.com/squareup/polt/pkg/stage"
-	"github.com/squareup/polt/pkg/upload"
 	"golang.org/x/sync/errgroup"
 )
 

@@ -16,9 +16,9 @@ import (
 	"github.com/apache/arrow-go/v18/parquet"
 	"github.com/apache/arrow-go/v18/parquet/compress"
 	"github.com/apache/arrow-go/v18/parquet/pqarrow"
+	"github.com/block/polt/pkg/random"
+	"github.com/block/polt/pkg/upload"
 	"github.com/block/spirit/pkg/table"
-	"github.com/squareup/polt/pkg/random"
-	"github.com/squareup/polt/pkg/upload"
 )
 
 const (

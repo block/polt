@@ -13,13 +13,13 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/block/polt/pkg/audit"
+	"github.com/block/polt/pkg/boot"
+	"github.com/block/polt/pkg/query"
 	"github.com/block/spirit/pkg/dbconn"
 	"github.com/block/spirit/pkg/table"
 	"github.com/block/spirit/pkg/throttler"
 	"github.com/siddontang/loggers"
-	"github.com/squareup/polt/pkg/audit"
-	"github.com/squareup/polt/pkg/boot"
-	"github.com/squareup/polt/pkg/query"
 	"golang.org/x/sync/errgroup"
 )
 

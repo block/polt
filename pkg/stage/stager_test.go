@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/block/polt/pkg/test"
 	"github.com/block/spirit/pkg/table"
 	"github.com/block/spirit/pkg/throttler"
 	"github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
-	"github.com/squareup/polt/pkg/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

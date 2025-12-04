@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"testing"
 
+	"github.com/block/polt/pkg/audit"
+	"github.com/block/polt/pkg/test"
 	"github.com/block/spirit/pkg/dbconn"
-	"github.com/squareup/polt/pkg/audit"
-	"github.com/squareup/polt/pkg/test"
 	"github.com/stretchr/testify/require"
 )
 
