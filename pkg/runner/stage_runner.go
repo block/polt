@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"sync/atomic"
 	"time"
 
@@ -13,9 +14,9 @@ import (
 	"github.com/block/polt/pkg/destinations"
 	"github.com/block/polt/pkg/random"
 	"github.com/block/polt/pkg/stage"
-	"github.com/cashapp/spirit/pkg/dbconn"
-	"github.com/cashapp/spirit/pkg/table"
-	"github.com/cashapp/spirit/pkg/throttler"
+	"github.com/block/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/table"
+	"github.com/block/spirit/pkg/throttler"
 	"github.com/siddontang/loggers"
 )
 
@@ -145,7 +146,7 @@ func (sr *StageRunner) Run(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	thtlr, err := sr.getThrottler()
+	thtlr, err := sr.getThrottler(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -366,14 +367,14 @@ func (sr *StageRunner) setCurrentState(s int32) {
 }
 
 // getThrottler returns a throttler based on the replica connection. Returns a Noop throttler if the replica connection is nil.
-func (sr *StageRunner) getThrottler() (throttler.Throttler, error) {
+func (sr *StageRunner) getThrottler(ctx context.Context) (throttler.Throttler, error) {
 	var err error
 	var thtl throttler.Throttler
 	if sr.replicaDB != nil {
 		// An error here means the connection to the replica is not valid, or it can't be detected
 		// This is fatal because if a user specifies a replica throttler, and it can't be used,
 		// we should not proceed.
-		thtl, err = throttler.NewReplicationThrottler(sr.replicaDB, sr.replicaMaxLag, sr.logger)
+		thtl, err = throttler.NewReplicationThrottler(sr.replicaDB, sr.replicaMaxLag, slog.Default())
 		if err != nil {
 			sr.logger.Warnf("could not create replication throttler: %v", err)
 
@@ -383,7 +384,7 @@ func (sr *StageRunner) getThrottler() (throttler.Throttler, error) {
 		thtl = &throttler.Noop{}
 	}
 
-	err = thtl.Open()
+	err = thtl.Open(ctx)
 	if err != nil {
 		sr.logger.Warnf("could not open throttler: %v", err)
 
@@ -405,8 +406,9 @@ func (sr *StageRunner) boot(ctx context.Context) (*boot.StageBooter, error) {
 
 	// Get advisory lock on the table, this will be unlocked in Close() method.
 	// This is the same lock acquired by Spirit when running migrations, so that we prevent migrations and archives running at same time on the same table.
-	// see: https://github.com/cashapp/spirit/blob/c3968034254052c56a4ee7f07eced13cabfa2b1a/pkg/migration/runner.go#L205
-	sr.lock, err = dbconn.NewMetadataLock(ctx, sr.dsn, srcTbl, sr.logger)
+	// see: https://github.com/block/spirit/blob/c3968034254052c56a4ee7f07eced13cabfa2b1a/pkg/migration/runner.go#L205
+	dbConfig := dbconn.NewDBConfig()
+	sr.lock, err = dbconn.NewMetadataLock(ctx, sr.dsn, []*table.TableInfo{srcTbl}, dbConfig, slog.Default())
 	if err != nil {
 		return nil, err
 	}

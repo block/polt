@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cashapp/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/dbconn"
 )
 
 // DBCreds is a struct to hold database credentials that's common to both stage and archive runners.

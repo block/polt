@@ -16,8 +16,8 @@ import (
 	"github.com/block/polt/pkg/parquet"
 	"github.com/block/polt/pkg/stage"
 	"github.com/block/polt/pkg/upload"
-	"github.com/cashapp/spirit/pkg/dbconn"
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/table"
 	"github.com/siddontang/loggers"
 	"golang.org/x/sync/errgroup"
 )

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -14,7 +15,7 @@ import (
 	"github.com/block/polt/pkg/parquet"
 	"github.com/block/polt/pkg/stage"
 	"github.com/block/polt/pkg/upload"
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/table"
 	"github.com/siddontang/loggers"
 	"golang.org/x/sync/errgroup"
 )
@@ -56,13 +57,15 @@ func NewBufferStager(sconfig *stage.StagerConfig, chkPt *audit.Checkpoint, schem
 	}
 	atomic.StoreUint64(&b.totalRows, uint64(totalRows))
 
-	b.chunker, err = table.NewChunker(sconfig.SrcTbl, sconfig.ChunkDuration, sconfig.Logger)
+	// Use slog.Default() for the chunker since spirit now uses slog.Logger
+	// Pass SrcTbl as both old and new table since we're archiving from the same table
+	b.chunker, err = table.NewChunker(sconfig.SrcTbl, sconfig.SrcTbl, sconfig.ChunkDuration, slog.Default())
 	if err != nil {
 		return nil, err
 	}
 	if chkPt != nil {
 		// Overwrite the previously attached chunker with one at a specific watermark.
-		if err := b.chunker.OpenAtWatermark(chkPt.CopiedUntil, table.Datum{}); err != nil {
+		if err := b.chunker.OpenAtWatermark(chkPt.CopiedUntil); err != nil {
 			return nil, fmt.Errorf("error creating chunker: %w", err)
 		}
 		// Success from this point on
@@ -137,7 +140,7 @@ func (b *BufferStager) RetryableStageChunk(ctx context.Context, chunk *table.Chu
 	atomic.AddUint64(&b.StagedChunksCount, 1)
 	chunkProcessingTime := time.Since(startTime)
 	b.logger.Infof("ChunkProcessing time %v for chunk %v", chunkProcessingTime, chunk.String())
-	b.writeBuffer.AddChunk(chunk, chunkProcessingTime)
+	b.writeBuffer.AddChunk(chunk, chunkProcessingTime, uint64(copiedRows))
 
 	return nil
 }
@@ -153,7 +156,11 @@ func (b *BufferStager) stageChunk(ctx context.Context, chunk *table.Chunk) (int6
 
 		return -1, err
 	}
-	defer rows.Close()
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil {
+			b.logger.Errorf("error closing rows: %v", closeErr)
+		}
+	}()
 
 	return b.loadRowsToBuffer(rows, chunk)
 }

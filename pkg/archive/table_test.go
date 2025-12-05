@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/table"
 	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/require"
 

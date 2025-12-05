@@ -31,7 +31,12 @@ func (u *FileUploader) Upload(ctx context.Context, prefix string, data []byte, s
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			// Log error but don't override the main error
+			_ = closeErr
+		}
+	}()
 
 	reader, err := f.NewParquetReader(bytes.NewReader(data))
 	if err != nil {
@@ -61,7 +66,9 @@ func (u *FileUploader) Upload(ctx context.Context, prefix string, data []byte, s
 		record.Release()
 		newRecord.Release()
 	}
-	writer.Close()
+	if closeErr := writer.Close(); closeErr != nil {
+		return closeErr
+	}
 
 	return err
 }

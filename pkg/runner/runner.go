@@ -9,7 +9,7 @@ import (
 
 	"github.com/block/polt/pkg/audit"
 	"github.com/block/polt/pkg/boot"
-	"github.com/cashapp/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/dbconn"
 )
 
 type Status int64

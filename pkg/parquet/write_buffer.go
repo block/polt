@@ -18,7 +18,7 @@ import (
 	"github.com/apache/arrow-go/v18/parquet/pqarrow"
 	"github.com/block/polt/pkg/random"
 	"github.com/block/polt/pkg/upload"
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/table"
 )
 
 const (
@@ -50,8 +50,9 @@ type WriteBuffer struct {
 }
 
 type BufferedChunk struct {
-	Chunk    *table.Chunk
-	Duration time.Duration
+	Chunk      *table.Chunk
+	Duration   time.Duration
+	ActualRows uint64
 }
 
 func NewWriteBuffer(schema *arrow.Schema, chunker table.Chunker, uploader upload.Uploader, outputFileSize uint64) *WriteBuffer {
@@ -117,17 +118,17 @@ func (wb *WriteBuffer) Flush(ctx context.Context) (uint64, error) {
 	return rowsWritten, nil
 }
 
-func (wb *WriteBuffer) AddChunk(chunk *table.Chunk, duration time.Duration) {
+func (wb *WriteBuffer) AddChunk(chunk *table.Chunk, duration time.Duration, actualRows uint64) {
 	wb.bcm.Lock()
 	defer wb.bcm.Unlock()
-	wb.bufferedChunks = append(wb.bufferedChunks, &BufferedChunk{Chunk: chunk, Duration: duration})
+	wb.bufferedChunks = append(wb.bufferedChunks, &BufferedChunk{Chunk: chunk, Duration: duration, ActualRows: actualRows})
 }
 
 func (wb *WriteBuffer) feedbackChunks() {
 	wb.bcm.Lock()
 	defer wb.bcm.Unlock()
 	for _, pChunk := range wb.bufferedChunks {
-		wb.chunker.Feedback(pChunk.Chunk, pChunk.Duration)
+		wb.chunker.Feedback(pChunk.Chunk, pChunk.Duration, pChunk.ActualRows)
 	}
 }
 
@@ -206,6 +207,9 @@ func float64Val(i interface{}) (float64, error) {
 		return v, nil
 	case float32:
 		return float64(v), nil
+	case []byte:
+		// MySQL returns DECIMAL values as []byte ([]uint8 is an alias for []byte)
+		return strconv.ParseFloat(string(v), 64)
 	default:
 		return 0, fmt.Errorf("cannot convert %v to float64", i)
 	}

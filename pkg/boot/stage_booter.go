@@ -8,8 +8,8 @@ import (
 
 	"github.com/block/polt/pkg/audit"
 	"github.com/block/polt/pkg/query"
-	"github.com/cashapp/spirit/pkg/dbconn"
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/table"
 )
 
 const MaxTableLen = 64
@@ -137,7 +137,12 @@ func (sb *StageBooter) replicaisHealthy(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil {
+			// Log error but don't override the main error
+			_ = closeErr
+		}
+	}()
 	status, err := scanToMap(rows)
 	if err != nil {
 		return err

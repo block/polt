@@ -56,4 +56,4 @@ For more details about parquet format , see [Parquet File Format](https://parque
 
 ## Dependencies
 * Relies on [mysql-client-driver](https://github.com/go-sql-driver/mysql) for connecting to MySQL databases.
-* Relies on [Spirit](https://github.com/cashapp/spirit) for chunking the data that needs to be archived and also for many other utilities related to db connection, loading table metadata etc.
+* Relies on [Spirit](https://github.com/block/spirit) for chunking the data that needs to be archived and also for many other utilities related to db connection, loading table metadata etc.

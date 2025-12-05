@@ -12,7 +12,7 @@ import (
 	"github.com/apache/arrow-go/v18/parquet/file"
 	"github.com/block/polt/pkg/test"
 	"github.com/block/polt/pkg/upload"
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/table"
 	"github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
@@ -70,7 +70,11 @@ func TestNewFileArchiver(t *testing.T) {
 	fileReader, err := file.OpenParquetFile(path.Clean(test.FindParquetFile(t, parquetFileSuffix, true)[0]),
 		false, file.WithReadProps(props))
 	require.NoError(t, err)
-	defer fileReader.Close()
+	defer func() {
+		if closeErr := fileReader.Close(); closeErr != nil {
+			t.Errorf("error closing file reader: %v", closeErr)
+		}
+	}()
 
 	require.Equal(t, 1, fileReader.NumRowGroups())
 	rgr := fileReader.RowGroup(0)
@@ -138,7 +142,11 @@ func TestNewFileArchiver_BinaryKey(t *testing.T) {
 	fileReader, err := file.OpenParquetFile(path.Clean(test.FindParquetFile(t, parquetFileSuffix, true)[0]),
 		false, file.WithReadProps(props))
 	require.NoError(t, err)
-	defer fileReader.Close()
+	defer func() {
+		if closeErr := fileReader.Close(); closeErr != nil {
+			t.Errorf("error closing file reader: %v", closeErr)
+		}
+	}()
 
 	require.Equal(t, 1, fileReader.NumRowGroups())
 	rgr := fileReader.RowGroup(0)

@@ -7,7 +7,7 @@ import (
 
 	"github.com/block/polt/pkg/audit"
 	"github.com/block/polt/pkg/test"
-	"github.com/cashapp/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/dbconn"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,7 +17,11 @@ func TestRunEntry(t *testing.T) {
 	test.RunSQL(t, "DROP TABLE IF EXISTS polt.runs")
 	db, err := sql.Open("mysql", test.DSN())
 	require.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			t.Errorf("error closing db: %v", closeErr)
+		}
+	}()
 
 	require.NoError(t, err)
 	auditDB := "polt"

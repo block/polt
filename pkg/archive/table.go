@@ -7,8 +7,8 @@ import (
 	"slices"
 
 	"github.com/block/polt/pkg/boot"
-	"github.com/cashapp/spirit/pkg/dbconn"
-	"github.com/cashapp/spirit/pkg/table"
+	"github.com/block/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/table"
 )
 
 type Table struct {

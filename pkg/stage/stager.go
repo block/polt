@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"math"
 	"math/rand"
 	"strings"
@@ -15,9 +16,9 @@ import (
 	"github.com/block/polt/pkg/audit"
 	"github.com/block/polt/pkg/boot"
 	"github.com/block/polt/pkg/query"
-	"github.com/cashapp/spirit/pkg/dbconn"
-	"github.com/cashapp/spirit/pkg/table"
-	"github.com/cashapp/spirit/pkg/throttler"
+	"github.com/block/spirit/pkg/dbconn"
+	"github.com/block/spirit/pkg/table"
+	"github.com/block/spirit/pkg/throttler"
 	"github.com/siddontang/loggers"
 	"golang.org/x/sync/errgroup"
 )
@@ -68,7 +69,8 @@ type StagerConfig struct {
 
 // NewStager creates a new stager, from a checkpoint (copyRowsAt, copyRows).
 func NewStager(sconfig *StagerConfig, chk *audit.Checkpoint) (*Stager, error) {
-	chunker, err := table.NewCompositeChunker(sconfig.SrcTbl, sconfig.ChunkDuration, sconfig.Logger, sconfig.Key, sconfig.Where)
+	// Use slog.Default() for the chunker since spirit now uses slog.Logger
+	chunker, err := table.NewCompositeChunker(sconfig.SrcTbl, sconfig.ChunkDuration, slog.Default(), sconfig.Key, sconfig.Where)
 	if err != nil {
 		return &Stager{}, err
 	}
@@ -97,7 +99,7 @@ func NewStager(sconfig *StagerConfig, chk *audit.Checkpoint) (*Stager, error) {
 
 	if chk != nil {
 		// Overwrite the previously attached chunker with one at a specific watermark.
-		if err := s.chunker.OpenAtWatermark(chk.CopiedUntil, table.Datum{}); err != nil {
+		if err := s.chunker.OpenAtWatermark(chk.CopiedUntil); err != nil {
 			return s, err
 		}
 		// Success from this point on
@@ -219,11 +221,13 @@ func (s *Stager) stageChunk(ctx context.Context, tx *sql.Tx, chunk *table.Chunk)
 	// in resuming from checkpoint we will be re-applying some of the
 	// previous executed work.
 
+	// Use NonGeneratedColumns to exclude generated columns from INSERT
+	// Generated columns cannot be explicitly inserted, they are computed automatically
 	insertChunkQuery := fmt.Sprintf("INSERT IGNORE INTO %s (%s,%s) SELECT %s,%d FROM %s FORCE INDEX (%s) WHERE %s LOCK IN SHARE MODE",
 		s.stageTbl.QuotedName,
-		strings.Join(s.srcTbl.Columns, ", "),
+		strings.Join(s.srcTbl.NonGeneratedColumns, ", "),
 		boot.TryNumColName,
-		strings.Join(s.srcTbl.Columns, ", "),
+		strings.Join(s.srcTbl.NonGeneratedColumns, ", "),
 		s.tryNum,
 		s.srcTbl.QuotedName,
 		s.key,
@@ -297,7 +301,7 @@ func (s *Stager) RetryableStageChunk(ctx context.Context, chunk *table.Chunk) er
 
 	chunkProcessingTime := time.Since(startTime)
 	s.logger.Debugf("ChunkProcessing time %v for chunk %v", chunkProcessingTime, chunk.String())
-	s.chunker.Feedback(chunk, chunkProcessingTime)
+	s.chunker.Feedback(chunk, chunkProcessingTime, uint64(copiedRows))
 
 	return nil
 }
