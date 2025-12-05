@@ -70,7 +70,11 @@ func TestNewFileArchiver(t *testing.T) {
 	fileReader, err := file.OpenParquetFile(path.Clean(test.FindParquetFile(t, parquetFileSuffix, true)[0]),
 		false, file.WithReadProps(props))
 	require.NoError(t, err)
-	defer fileReader.Close()
+	defer func() {
+		if closeErr := fileReader.Close(); closeErr != nil {
+			t.Errorf("error closing file reader: %v", closeErr)
+		}
+	}()
 
 	require.Equal(t, 1, fileReader.NumRowGroups())
 	rgr := fileReader.RowGroup(0)
@@ -138,7 +142,11 @@ func TestNewFileArchiver_BinaryKey(t *testing.T) {
 	fileReader, err := file.OpenParquetFile(path.Clean(test.FindParquetFile(t, parquetFileSuffix, true)[0]),
 		false, file.WithReadProps(props))
 	require.NoError(t, err)
-	defer fileReader.Close()
+	defer func() {
+		if closeErr := fileReader.Close(); closeErr != nil {
+			t.Errorf("error closing file reader: %v", closeErr)
+		}
+	}()
 
 	require.Equal(t, 1, fileReader.NumRowGroups())
 	rgr := fileReader.RowGroup(0)

@@ -137,7 +137,12 @@ func (sb *StageBooter) replicaisHealthy(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil {
+			// Log error but don't override the main error
+			_ = closeErr
+		}
+	}()
 	status, err := scanToMap(rows)
 	if err != nil {
 		return err

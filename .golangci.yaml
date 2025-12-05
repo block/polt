@@ -1,3 +1,5 @@
+version: "2"
+
 run:
   tests: true
 
@@ -10,11 +12,8 @@ linters:
     - gomoddirectives
     - exhaustruct
     - funlen
-    - gci
     - gochecknoglobals
     - gocritic
-    - gofumpt
-    - gomnd
     - gosec
     - lll
     - mnd
@@ -29,7 +28,9 @@ linters:
     - ireturn
     - godox
     - err113
-    - execinquery
+
+formatters:
+  disable-all: true
 
 issues:
   max-per-linter: 0

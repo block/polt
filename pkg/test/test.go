@@ -31,7 +31,11 @@ func RunSQL(t *testing.T, stmt string) {
 	t.Helper()
 	db, err := sql.Open("mysql", DSN())
 	require.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			t.Errorf("error closing db: %v", closeErr)
+		}
+	}()
 	_, err = db.Exec(stmt)
 	require.NoError(t, err)
 }
@@ -68,7 +72,7 @@ func DeleteAllParquetFiles() {
 		panic(err)
 	}
 	for _, match := range matches {
-		os.Remove(match)
+		_ = os.Remove(match) // Ignore error during cleanup
 	}
 }
 
@@ -104,7 +108,9 @@ func LockExists(t *testing.T, db *sql.DB, tableName string) bool {
 	defer func() {
 		// Release the lock
 		if lock != nil {
-			lock.Close()
+			if closeErr := lock.Close(); closeErr != nil {
+				t.Errorf("error closing lock: %v", closeErr)
+			}
 		}
 	}()
 	srcTbl := table.NewTableInfo(db, "test", tableName)

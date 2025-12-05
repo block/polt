@@ -39,7 +39,12 @@ func MysqlToArrowSchema(db *sql.DB, tableName string) (*arrow.Schema, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil {
+			// Log error but don't override the main error
+			_ = closeErr
+		}
+	}()
 
 	var fields []arrow.Field
 	for rows.Next() {

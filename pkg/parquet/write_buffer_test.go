@@ -109,7 +109,11 @@ func TestNewParquetManagerFlush(t *testing.T) {
 
 	err = chunker.Open()
 	require.NoError(t, err)
-	defer chunker.Close()
+	defer func() {
+		if closeErr := chunker.Close(); closeErr != nil {
+			t.Errorf("error closing chunker: %v", closeErr)
+		}
+	}()
 
 	chunk, err := chunker.Next()
 	require.NoError(t, err)
@@ -117,7 +121,8 @@ func TestNewParquetManagerFlush(t *testing.T) {
 	// Add the chunk
 	pm.AddChunk(chunk, 1*time.Second, 0)
 	// Flush the chunks
-	pm.Flush(context.Background())
+	_, err = pm.Flush(context.Background())
+	require.NoError(t, err)
 
 	// Verify the chunks were flushed correctly
 	require.Empty(t, pm.bufferedChunks, "BufferedChunks should be empty after flushing")

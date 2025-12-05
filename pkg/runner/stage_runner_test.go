@@ -86,7 +86,8 @@ func TestNewStageRunner(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, successful)
 
-	s.Close()
+	err = s.Close()
+	require.NoError(t, err)
 	// Test that DB connection pool is closed after closing the StageRunner.
 	require.Error(t, s.db.Ping())
 
@@ -111,7 +112,8 @@ func TestNewStageRunner(t *testing.T) {
 
 	// Returns early without setting up stager as data is already staged.
 	assert.Nil(t, s1.stager)
-	s1.Close()
+	err = s1.Close()
+	require.NoError(t, err)
 }
 
 func TestStageRunnerPrepare(t *testing.T) {
@@ -194,7 +196,8 @@ func TestNewStageRunnerWithReplica(t *testing.T) {
 
 	assert.Equal(t, 17, s.db.Stats().MaxOpenConnections) // Test that connection pool max connections set to number of threads + 1.
 
-	s.Close()
+	err = s.Close()
+	require.NoError(t, err)
 	// Test that DB connection pool is closed after closing the StageRunner.
 	require.Error(t, s.db.Ping())
 }
@@ -236,7 +239,8 @@ func TestNewStageRunnerOnPrimaryKey(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "_t1_sr_pk_stage_runid", stgTbl)
 
-	s.Close()
+	err = s.Close()
+	require.NoError(t, err)
 	// Test that DB connection pool is closed after closing the StageRunner.
 	require.Error(t, s.db.Ping())
 }
@@ -452,7 +456,11 @@ func TestStageRunnerWithGeneratedColumns(t *testing.T) {
 	// Verify that the staging table was created and data was copied
 	db, err := sql.Open("mysql", test.DSN())
 	require.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			t.Errorf("error closing db: %v", closeErr)
+		}
+	}()
 
 	// Check that rows matching the query were staged
 	stagedCount := test.GetCount(t, db, "_t1_sr_gen_stage_runid", "name_length > 8")
@@ -483,7 +491,8 @@ func TestStageRunnerWithGeneratedColumns(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, successful)
 
-	s.Close()
+	err = s.Close()
+	require.NoError(t, err)
 }
 
 func TestResumeFromDBFailure(t *testing.T) {
@@ -549,7 +558,7 @@ func TestResumeFromDBFailure(t *testing.T) {
 				// Check that the metadata lock with table name exists while stage runner is running.
 				assert.True(t, test.LockExists(t, db, "sr_cpt2"))
 				// Simulate DB failure and stage failure by closing the connection.
-				s.db.Close()
+				_ = s.db.Close() // Ignore error during cleanup
 
 				break
 			}

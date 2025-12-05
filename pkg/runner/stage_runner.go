@@ -146,7 +146,7 @@ func (sr *StageRunner) Run(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	thtlr, err := sr.getThrottler()
+	thtlr, err := sr.getThrottler(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -367,7 +367,7 @@ func (sr *StageRunner) setCurrentState(s int32) {
 }
 
 // getThrottler returns a throttler based on the replica connection. Returns a Noop throttler if the replica connection is nil.
-func (sr *StageRunner) getThrottler() (throttler.Throttler, error) {
+func (sr *StageRunner) getThrottler(ctx context.Context) (throttler.Throttler, error) {
 	var err error
 	var thtl throttler.Throttler
 	if sr.replicaDB != nil {
@@ -384,7 +384,7 @@ func (sr *StageRunner) getThrottler() (throttler.Throttler, error) {
 		thtl = &throttler.Noop{}
 	}
 
-	err = thtl.Open(context.Background())
+	err = thtl.Open(ctx)
 	if err != nil {
 		sr.logger.Warnf("could not open throttler: %v", err)
 

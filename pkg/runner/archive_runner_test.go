@@ -102,7 +102,8 @@ func TestNewArchiveRunner(t *testing.T) {
 	// Test that runs table exists after the archive phase finishes successfully.
 	require.True(t, test.TableExists(t, "polt", "runs", a.db))
 
-	a.Close()
+	err = a.Close()
+	require.NoError(t, err)
 	// Test that DB connection pool is closed after closing the ArchiveRunner.
 	require.Error(t, a.db.Ping())
 
@@ -183,7 +184,11 @@ func TestNewArchiveRunner_ParquetFile(t *testing.T) {
 	props := parquet.NewReaderProperties(memory.DefaultAllocator)
 	fileReader, err := file.OpenParquetFile(path.Clean(parquetFiles[0]), false, file.WithReadProps(props))
 	require.NoError(t, err)
-	defer fileReader.Close()
+	defer func() {
+		if closeErr := fileReader.Close(); closeErr != nil {
+			t.Errorf("error closing file reader: %v", closeErr)
+		}
+	}()
 
 	require.Equal(t, 1, fileReader.NumRowGroups())
 	rgr := fileReader.RowGroup(0)
@@ -206,7 +211,8 @@ func TestNewArchiveRunner_ParquetFile(t *testing.T) {
 	// Test that runs table exists after the archive phase finishes successfully.
 	require.True(t, test.TableExists(t, "polt", "runs", a.db))
 
-	a.Close()
+	err = a.Close()
+	require.NoError(t, err)
 	// Test that DB connection pool is closed after closing the ArchiveRunner.
 	require.Error(t, a.db.Ping())
 
@@ -340,7 +346,11 @@ func TestArchiveMultipleParquetFiles(t *testing.T) {
 		props := parquet.NewReaderProperties(memory.DefaultAllocator)
 		fileReader, err := file.OpenParquetFile(path.Clean(f), false, file.WithReadProps(props))
 		require.NoError(t, err)
-		defer fileReader.Close()
+		defer func() {
+			if closeErr := fileReader.Close(); closeErr != nil {
+				t.Errorf("error closing file reader: %v", closeErr)
+			}
+		}()
 
 		require.Equal(t, 1, fileReader.NumRowGroups())
 		rgr := fileReader.RowGroup(0)
@@ -349,7 +359,8 @@ func TestArchiveMultipleParquetFiles(t *testing.T) {
 
 	// Sum of rows in all parquet files should be equal to the total rows that will be archived.
 	require.EqualValues(t, rowsToBeArchived, totalRowsArchived)
-	a.Close()
+	err = a.Close()
+	require.NoError(t, err)
 }
 
 func TestArchiveMultipleParquetFiles_ResumeFromCheckpt(t *testing.T) {
@@ -447,7 +458,11 @@ func TestArchiveMultipleParquetFiles_ResumeFromCheckpt(t *testing.T) {
 		props := parquet.NewReaderProperties(memory.DefaultAllocator)
 		fileReader, err := file.OpenParquetFile(path.Clean(f), false, file.WithReadProps(props))
 		require.NoError(t, err)
-		defer fileReader.Close()
+		defer func() {
+			if closeErr := fileReader.Close(); closeErr != nil {
+				t.Errorf("error closing file reader: %v", closeErr)
+			}
+		}()
 
 		require.Equal(t, 1, fileReader.NumRowGroups())
 		rgr := fileReader.RowGroup(0)
@@ -472,7 +487,8 @@ func TestArchiveMultipleParquetFiles_ResumeFromCheckpt(t *testing.T) {
 	// We do unique over primary key column to avoid duplicates. There will be duplicates due to the fact that
 	// we are resuming from checkpoint.
 	require.Len(t, uniqueInts(allRowsIDs), rowsToBeArchived)
-	a.Close()
+	err = a.Close()
+	require.NoError(t, err)
 }
 
 func uniqueInts(input []int32) []int32 {
@@ -537,7 +553,11 @@ func TestArchiveRunnerWithGeneratedColumns(t *testing.T) {
 	// Verify that the archive table was created
 	db, err := sql.Open("mysql", test.DSN())
 	require.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			t.Errorf("error closing db: %v", closeErr)
+		}
+	}()
 
 	// Check that all rows were archived
 	archivedCount := test.GetCount(t, db, "t1_ar_gen_archived", "1=1")
@@ -571,7 +591,8 @@ func TestArchiveRunnerWithGeneratedColumns(t *testing.T) {
 	// Test that checkpoints table is deleted after the archive phase finishes successfully
 	require.False(t, test.TableExists(t, "polt", "checkpoints_"+arRunID, a.db))
 
-	a.Close()
+	err = a.Close()
+	require.NoError(t, err)
 }
 
 func TestArchiveRunnerWithGeneratedColumns_ParquetFile(t *testing.T) {
@@ -627,7 +648,11 @@ func TestArchiveRunnerWithGeneratedColumns_ParquetFile(t *testing.T) {
 	props := parquet.NewReaderProperties(memory.DefaultAllocator)
 	fileReader, err := file.OpenParquetFile(path.Clean(parquetFiles[0]), false, file.WithReadProps(props))
 	require.NoError(t, err)
-	defer fileReader.Close()
+	defer func() {
+		if closeErr := fileReader.Close(); closeErr != nil {
+			t.Errorf("error closing file reader: %v", closeErr)
+		}
+	}()
 
 	require.Equal(t, 1, fileReader.NumRowGroups())
 	rgr := fileReader.RowGroup(0)
@@ -651,5 +676,6 @@ func TestArchiveRunnerWithGeneratedColumns_ParquetFile(t *testing.T) {
 	// Test that checkpoints table is deleted after the archive phase finishes successfully
 	require.False(t, test.TableExists(t, "polt", "checkpoints_"+arRunID, a.db))
 
-	a.Close()
+	err = a.Close()
+	require.NoError(t, err)
 }

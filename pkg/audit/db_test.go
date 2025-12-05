@@ -14,7 +14,11 @@ func TestCreateAuditDB(t *testing.T) {
 	// Check that the audit database is created correctly
 	db, err := sql.Open("mysql", test.DSN())
 	require.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			t.Errorf("error closing db: %v", closeErr)
+		}
+	}()
 	err = CreateDB(context.Background(), db, "auditDB")
 	require.NoError(t, err)
 	var schemaName string
@@ -28,7 +32,11 @@ func TestCreateCheckpointTbl(t *testing.T) {
 	// Check that the checkpoint table is created correctly
 	db, err := sql.Open("mysql", test.DSN())
 	require.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			t.Errorf("error closing db: %v", closeErr)
+		}
+	}()
 	err = CreateDB(context.Background(), db, "auditDB")
 	require.NoError(t, err)
 	err = CreateCheckpointTbl(context.Background(), db, "auditDB", "runid")
@@ -44,7 +52,11 @@ func TestCreateRunsTbl(t *testing.T) {
 	// Check that the runs table is created correctly
 	db, err := sql.Open("mysql", test.DSN())
 	require.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			t.Errorf("error closing db: %v", closeErr)
+		}
+	}()
 	err = CreateDB(context.Background(), db, "auditDB")
 	require.NoError(t, err)
 	err = CreateRunsTbl(context.Background(), db, "auditDB")

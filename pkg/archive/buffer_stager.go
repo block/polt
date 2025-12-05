@@ -156,7 +156,11 @@ func (b *BufferStager) stageChunk(ctx context.Context, chunk *table.Chunk) (int6
 
 		return -1, err
 	}
-	defer rows.Close()
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil {
+			b.logger.Errorf("error closing rows: %v", closeErr)
+		}
+	}()
 
 	return b.loadRowsToBuffer(rows, chunk)
 }

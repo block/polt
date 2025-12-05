@@ -80,7 +80,11 @@ func (a *ArchiveCmd) Run() error {
 	if err != nil {
 		return fmt.Errorf("error creating archive runner: %w", err)
 	}
-	defer archiveRunner.Close()
+	defer func() {
+		if closeErr := archiveRunner.Close(); closeErr != nil {
+			logger.Errorf("error closing archive runner: %v", closeErr)
+		}
+	}()
 
 	return archiveRunner.Run(context.Background())
 }
@@ -96,8 +100,8 @@ func (s *StageCmd) Run() error {
 		StartedBy:       s.StartedBy,
 		AuditDB:         s.AuditDB,
 		DryRun:          s.DryRun,
-		Threads:         s.DBConfig.Threads,
-		LockWaitTimeout: s.DBConfig.LockWaitTimeout,
+		Threads:         s.Threads,
+		LockWaitTimeout: s.LockWaitTimeout,
 		TargetChunkTime: s.TargetChunkTime,
 		Host:            s.Host,
 		Username:        s.Username,
@@ -109,7 +113,11 @@ func (s *StageCmd) Run() error {
 	if err != nil {
 		return fmt.Errorf("error creating stage runner: %w", err)
 	}
-	defer stageRunner.Close()
+	defer func() {
+		if closeErr := stageRunner.Close(); closeErr != nil {
+			logger.Errorf("error closing stage runner: %v", closeErr)
+		}
+	}()
 
 	_, err = stageRunner.Run(context.Background())
 

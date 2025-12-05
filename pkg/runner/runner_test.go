@@ -17,7 +17,11 @@ func TestRunEntry(t *testing.T) {
 	test.RunSQL(t, "DROP TABLE IF EXISTS polt.runs")
 	db, err := sql.Open("mysql", test.DSN())
 	require.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			t.Errorf("error closing db: %v", closeErr)
+		}
+	}()
 
 	require.NoError(t, err)
 	auditDB := "polt"
