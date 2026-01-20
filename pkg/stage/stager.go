@@ -282,7 +282,7 @@ func (s *Stager) RetryableStageChunk(ctx context.Context, chunk *table.Chunk) er
 	startTime := time.Now()
 	var copiedRows int64
 	var err error
-	s.Throttler.BlockWait()
+	s.Throttler.BlockWait(ctx)
 
 	for i := range defaultMaxRetries {
 		copiedRows, err = s.stageChunkWithTx(ctx, i, chunk, s.stageChunk)
