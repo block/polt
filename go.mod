@@ -1,8 +1,8 @@
 module github.com/block/polt
 
-go 1.24.0
+go 1.25.3
 
-toolchain go1.24.2
+toolchain go1.25.6
 
 require (
 	github.com/alecthomas/kong v0.8.0
@@ -20,7 +20,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/block/spirit v0.10.1-0.20251125225304-aeb604d5ab50
+	github.com/block/spirit v0.10.1
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 )
 
