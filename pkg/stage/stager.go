@@ -85,13 +85,13 @@ func NewStager(sconfig *StagerConfig, chk *audit.Checkpoint) (*Stager, error) {
 		stageTbl:    sconfig.StageTbl,
 		dryRun:      sconfig.DryRun,
 	}
-	_, isCovIdx, err := query.GetIndex("SELECT COUNT(*) FROM "+s.srcTbl.QuotedName+" WHERE "+sconfig.Where, sconfig.DB)
+	_, isCovIdx, err := query.GetIndex("SELECT COUNT(*) FROM "+fmt.Sprintf("`%s`.`%s`", s.srcTbl.SchemaName, s.srcTbl.TableName)+" WHERE "+sconfig.Where, sconfig.DB)
 	if err != nil {
 		return s, err
 	}
 	if isCovIdx {
 		s.estimates = true
-		err = s.db.QueryRow("SELECT COUNT(*) FROM " + s.srcTbl.QuotedName + " WHERE " + sconfig.Where).Scan(&s.totalRows)
+		err = s.db.QueryRow("SELECT COUNT(*) FROM " + fmt.Sprintf("`%s`.`%s`", s.srcTbl.SchemaName, s.srcTbl.TableName) + " WHERE " + sconfig.Where).Scan(&s.totalRows)
 		if err != nil {
 			return s, err
 		}
@@ -224,12 +224,12 @@ func (s *Stager) stageChunk(ctx context.Context, tx *sql.Tx, chunk *table.Chunk)
 	// Use NonGeneratedColumns to exclude generated columns from INSERT
 	// Generated columns cannot be explicitly inserted, they are computed automatically
 	insertChunkQuery := fmt.Sprintf("INSERT IGNORE INTO %s (%s,%s) SELECT %s,%d FROM %s FORCE INDEX (%s) WHERE %s LOCK IN SHARE MODE",
-		s.stageTbl.QuotedName,
+		fmt.Sprintf("`%s`.`%s`", s.stageTbl.SchemaName, s.stageTbl.TableName),
 		strings.Join(s.srcTbl.NonGeneratedColumns, ", "),
 		boot.TryNumColName,
 		strings.Join(s.srcTbl.NonGeneratedColumns, ", "),
 		s.tryNum,
-		s.srcTbl.QuotedName,
+		fmt.Sprintf("`%s`.`%s`", s.srcTbl.SchemaName, s.srcTbl.TableName),
 		s.key,
 		chunk.String(),
 	)
@@ -260,7 +260,7 @@ func (s *Stager) stageChunk(ctx context.Context, tx *sql.Tx, chunk *table.Chunk)
 	// Delete the chunk, if not dry-run
 	if !s.dryRun {
 		deleteChunkQuery := fmt.Sprintf("DELETE FROM %s WHERE %s",
-			s.srcTbl.QuotedName,
+			fmt.Sprintf("`%s`.`%s`", s.srcTbl.SchemaName, s.srcTbl.TableName),
 			chunk.String(),
 		)
 		_, err = tx.ExecContext(ctx, deleteChunkQuery)
@@ -309,7 +309,7 @@ func (s *Stager) RetryableStageChunk(ctx context.Context, chunk *table.Chunk) er
 func (s *Stager) checksumMatch(ctx context.Context, tx *sql.Tx, chunk *table.Chunk) error {
 	source := fmt.Sprintf("SELECT BIT_XOR(CRC32(CONCAT(%s))) as checksum FROM %s WHERE %s",
 		strings.Join(s.srcTbl.Columns, ", "),
-		s.srcTbl.QuotedName,
+		fmt.Sprintf("`%s`.`%s`", s.srcTbl.SchemaName, s.srcTbl.TableName),
 		chunk.String(),
 	)
 	// Filter the rows on the target/stage table to only the rows that were
@@ -320,7 +320,7 @@ func (s *Stager) checksumMatch(ctx context.Context, tx *sql.Tx, chunk *table.Chu
 	// only.
 	target := fmt.Sprintf("SELECT BIT_XOR(CRC32(CONCAT(%s))) as checksum FROM %s WHERE %s AND try_num=%d",
 		strings.Join(s.srcTbl.Columns, ", "),
-		s.stageTbl.QuotedName,
+		fmt.Sprintf("`%s`.`%s`", s.stageTbl.SchemaName, s.stageTbl.TableName),
 		chunk.String(),
 		s.tryNum,
 	)

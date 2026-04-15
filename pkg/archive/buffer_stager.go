@@ -51,7 +51,7 @@ func NewBufferStager(sconfig *stage.StagerConfig, chkPt *audit.Checkpoint, schem
 	}
 
 	var totalRows int
-	err = b.db.QueryRow("SELECT COUNT(*) FROM " + b.srcTbl.QuotedName).Scan(&totalRows)
+	err = b.db.QueryRow("SELECT COUNT(*) FROM " + fmt.Sprintf("`%s`.`%s`", b.srcTbl.SchemaName, b.srcTbl.TableName)).Scan(&totalRows)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (b *BufferStager) RetryableStageChunk(ctx context.Context, chunk *table.Chu
 func (b *BufferStager) stageChunk(ctx context.Context, chunk *table.Chunk) (int64, error) {
 	var err error
 
-	copyChunkQuery := fmt.Sprintf("SELECT * FROM %s where %s LOCK IN SHARE MODE", b.srcTbl.QuotedName, chunk.String())
+	copyChunkQuery := fmt.Sprintf("SELECT * FROM %s where %s LOCK IN SHARE MODE", fmt.Sprintf("`%s`.`%s`", b.srcTbl.SchemaName, b.srcTbl.TableName), chunk.String())
 	b.logger.Infof("\nrunning chunk: %s, copyChunkQuery: %s", chunk.String(), copyChunkQuery)
 	rows, err := b.db.QueryContext(ctx, copyChunkQuery)
 	if err != nil {
