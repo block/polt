@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/block/spirit/pkg/dbconn"
-	"github.com/block/spirit/pkg/table"
 )
 
 const RunsTblName = "runs"
@@ -51,21 +50,9 @@ func CreateDB(ctx context.Context, db *sql.DB, auditDB string) error {
 }
 
 func CreateRunsTbl(ctx context.Context, db *sql.DB, auditDB string) error {
-	err := dbconn.Exec(ctx, db, RunsTblCreateStmt, auditDB, RunsTblName)
-	if err != nil {
-		return err
-	}
-	runsTable := table.NewTableInfo(db, auditDB, RunsTblName)
-
-	return runsTable.SetInfo(ctx)
+	return dbconn.Exec(ctx, db, RunsTblCreateStmt, auditDB, RunsTblName)
 }
 
 func CreateCheckpointTbl(ctx context.Context, db *sql.DB, auditDB string, runID string) error {
-	err := dbconn.Exec(ctx, db, checkPointTblCreateStmt, auditDB, CheckPtsTblName(runID))
-	if err != nil {
-		return err
-	}
-	chkptTable := table.NewTableInfo(db, auditDB, CheckPtsTblName(runID))
-
-	return chkptTable.SetInfo(ctx)
+	return dbconn.Exec(ctx, db, checkPointTblCreateStmt, auditDB, CheckPtsTblName(runID))
 }
