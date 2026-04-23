@@ -61,6 +61,7 @@ type StageRunner struct {
 	host            string
 	username        string
 	password        string
+	dbConnFunc      DBConnFunc
 }
 
 type StageRunnerConfig struct {
@@ -79,6 +80,7 @@ type StageRunnerConfig struct {
 	Host            string
 	Username        string
 	Password        string
+	DBConnFunc      DBConnFunc
 }
 
 func NewStageRunner(s *StageRunnerConfig, logger loggers.Advanced) (*StageRunner, error) {
@@ -105,6 +107,7 @@ func NewStageRunner(s *StageRunnerConfig, logger loggers.Advanced) (*StageRunner
 		targetChunkTime: s.TargetChunkTime,
 		logger:          logger,
 		dryrun:          s.DryRun,
+		dbConnFunc:      s.DBConnFunc,
 	}, nil
 }
 
@@ -482,11 +485,19 @@ func (sr *StageRunner) setupDBAndCheckIfRunSucceeded(ctx context.Context) (bool,
 		Database: sr.database,
 	})
 	dbconfig := setupDBConfig(&DBConfig{Threads: sr.threads, LockWaitTimeout: sr.lockWaitTimeout})
-	sr.db, err = setupDB(sr.dsn, dbconfig)
+	if sr.dbConnFunc != nil {
+		sr.db, err = sr.dbConnFunc(sr.dsn, dbconfig)
+	} else {
+		sr.db, err = setupDB(sr.dsn, dbconfig)
+	}
 	if err != nil {
 		return false, fmt.Errorf("error setting up db: %w", err)
 	}
-	sr.replicaDB, err = setupReplicaDB(dbconfig, sr.replicaDSN)
+	if sr.dbConnFunc != nil && sr.replicaDSN != "" {
+		sr.replicaDB, err = sr.dbConnFunc(sr.replicaDSN, dbconfig)
+	} else {
+		sr.replicaDB, err = setupReplicaDB(dbconfig, sr.replicaDSN)
+	}
 	if err != nil {
 		return false, fmt.Errorf("error setting up replica-db: %w", err)
 	}

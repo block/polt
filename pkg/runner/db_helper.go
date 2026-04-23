@@ -8,6 +8,12 @@ import (
 	"github.com/block/spirit/pkg/dbconn"
 )
 
+// DBConnFunc is an optional callback that returns a *sql.DB for the given DSN
+// and config. When nil, the default dbconn.New() path is used. This allows
+// callers to inject a custom *sql.DB (e.g. with tracing)
+// without adding extra dependencies to the OSS library.
+type DBConnFunc func(dsn string, dbConfig *dbconn.DBConfig) (*sql.DB, error)
+
 // DBCreds is a struct to hold database credentials that's common to both stage and archive runners.
 type DBCreds struct {
 	Host     string `name:"host" help:"Hostname" optional:"" default:"127.0.0.1:3306"`

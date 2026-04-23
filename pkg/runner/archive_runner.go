@@ -47,6 +47,7 @@ type ArchiveRunner struct {
 	fileSizeInBytes uint64
 	startTime       time.Time
 	dryRun          bool
+	dbConnFunc      DBConnFunc
 }
 
 type ArchiveRunnerConfig struct {
@@ -64,6 +65,7 @@ type ArchiveRunnerConfig struct {
 	Password        string
 	FileSizeInBytes uint64
 	DryRun          bool
+	DBConnFunc      DBConnFunc
 }
 type ConfigLoader func(ctx context.Context, optFns ...func(*config.LoadOptions) error) (aws.Config, error)
 
@@ -84,6 +86,7 @@ func NewArchiveRunner(acfg *ArchiveRunnerConfig, logger *logrus.Logger) (*Archiv
 		lockWaitTimeout: acfg.LockWaitTimeout,
 		fileSizeInBytes: acfg.FileSizeInBytes,
 		dryRun:          acfg.DryRun,
+		dbConnFunc:      acfg.DBConnFunc,
 	}, nil
 }
 
@@ -210,7 +213,11 @@ func (ar *ArchiveRunner) setupDBAndCheckIfRunSucceeded(ctx context.Context) (boo
 		Database: ar.database,
 	})
 	dbconfig := setupDBConfig(&DBConfig{Threads: ar.threads, LockWaitTimeout: ar.lockWaitTimeout})
-	ar.db, err = setupDB(ar.dsn, dbconfig)
+	if ar.dbConnFunc != nil {
+		ar.db, err = ar.dbConnFunc(ar.dsn, dbconfig)
+	} else {
+		ar.db, err = setupDB(ar.dsn, dbconfig)
+	}
 	if err != nil {
 		return false, err
 	}
