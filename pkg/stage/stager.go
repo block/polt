@@ -70,7 +70,12 @@ type StagerConfig struct {
 // NewStager creates a new stager, from a checkpoint (copyRowsAt, copyRows).
 func NewStager(sconfig *StagerConfig, chk *audit.Checkpoint) (*Stager, error) {
 	// Use slog.Default() for the chunker since spirit now uses slog.Logger
-	chunker, err := table.NewCompositeChunker(sconfig.SrcTbl, sconfig.ChunkDuration, slog.Default(), sconfig.Key, sconfig.Where)
+	chunker, err := table.NewChunker(sconfig.SrcTbl, table.ChunkerConfig{
+		Logger:          slog.Default(),
+		Key:             sconfig.Key,
+		Where:           sconfig.Where,
+		TargetChunkTime: sconfig.ChunkDuration,
+	})
 	if err != nil {
 		return &Stager{}, err
 	}
