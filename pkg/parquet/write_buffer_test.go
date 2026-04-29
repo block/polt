@@ -102,7 +102,10 @@ func TestNewParquetManagerFlush(t *testing.T) {
 	schema, err := MysqlToArrowSchema(db, "t_flush")
 	require.NoError(t, err)
 
-	chunker, err := table.NewChunker(ti, nil, 1*time.Second, slog.Default())
+	chunker, err := table.NewChunker(ti, table.ChunkerConfig{
+		Logger:          slog.Default(),
+		TargetChunkTime: 1 * time.Second,
+	})
 	require.NoError(t, err)
 
 	pm := NewWriteBuffer(schema, chunker, &NullUploader{}, 0)

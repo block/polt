@@ -51,8 +51,8 @@ github.com/aws/aws-sdk-go-v2/service/sts v1.33.9/go.mod h1:f6vjfZER1M17Fokn0Izss
 github.com/aws/smithy-go v1.22.1 h1:/HPHZQ0g7f4eUeK6HKglFz8uwVfZKgoI25rb/J+dnro=
 github.com/aws/smithy-go v1.22.1/go.mod h1:irrKGvNn1InZwb2d7fkIRNucdfwR8R+Ts3wxYa/cJHg=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
-github.com/block/spirit v0.12.1-0.20260414195601-d7c75c14cdfa h1:zRECYJxIaAn8WEkvWn7/efGeJ8IisaKr+mjtWwLqs8M=
-github.com/block/spirit v0.12.1-0.20260414195601-d7c75c14cdfa/go.mod h1:TpxEit7CjSLSrhDG21K5ORu3abMED5OipGLDAadjX5Y=
+github.com/block/spirit v0.12.1-0.20260428210128-cd4aecfd2fcd h1:KGwjKbjDe5fAWQHXoButCeAIoqeuzOptBoUZFUVmoN0=
+github.com/block/spirit v0.12.1-0.20260428210128-cd4aecfd2fcd/go.mod h1:TpxEit7CjSLSrhDG21K5ORu3abMED5OipGLDAadjX5Y=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

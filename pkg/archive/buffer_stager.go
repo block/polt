@@ -59,7 +59,10 @@ func NewBufferStager(sconfig *stage.StagerConfig, chkPt *audit.Checkpoint, schem
 
 	// Use slog.Default() for the chunker since spirit now uses slog.Logger
 	// Pass SrcTbl as both old and new table since we're archiving from the same table
-	b.chunker, err = table.NewChunker(sconfig.SrcTbl, sconfig.SrcTbl, sconfig.ChunkDuration, slog.Default())
+	b.chunker, err = table.NewChunker(sconfig.SrcTbl, table.ChunkerConfig{
+		Logger:          slog.Default(),
+		TargetChunkTime: sconfig.ChunkDuration,
+	})
 	if err != nil {
 		return nil, err
 	}
