@@ -3,7 +3,7 @@ module github.com/block/polt
 go 1.26.1
 
 require (
-	github.com/alecthomas/kong v0.8.0
+	github.com/alecthomas/kong v1.15.0
 	github.com/apache/arrow-go/v18 v18.1.0
 	github.com/aws/aws-sdk-go-v2 v1.33.0
 	github.com/aws/aws-sdk-go-v2/config v1.29.1
@@ -13,12 +13,12 @@ require (
 	github.com/siddontang/loggers v1.0.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/sync v0.20.0
+	golang.org/x/sync v0.21.0
 )
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
-	github.com/block/spirit v0.15.1-0.20260617235652-98a38a253173
+	github.com/block/spirit v0.15.2-0.20260630130838-0df21ada57a0
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 )
 
