@@ -57,9 +57,13 @@ func NewBufferStager(sconfig *stage.StagerConfig, chkPt *audit.Checkpoint, schem
 	}
 	atomic.StoreUint64(&b.totalRows, uint64(totalRows))
 
-	// Use slog.Default() for the chunker since spirit now uses slog.Logger
-	// Pass SrcTbl as both old and new table since we're archiving from the same table
-	b.chunker, err = table.NewChunker(sconfig.SrcTbl, sconfig.SrcTbl, sconfig.ChunkDuration, slog.Default())
+	// Use slog.Default() for the chunker since spirit now uses slog.Logger.
+	// Pass SrcTbl as both old and new table since we're archiving from the same table.
+	b.chunker, err = table.NewChunker(sconfig.SrcTbl, table.ChunkerConfig{
+		NewTable:        sconfig.SrcTbl,
+		TargetChunkTime: sconfig.ChunkDuration,
+		Logger:          slog.Default(),
+	})
 	if err != nil {
 		return nil, err
 	}
