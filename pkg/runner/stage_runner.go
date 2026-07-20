@@ -40,7 +40,7 @@ type StageRunner struct {
 	replicaDSN    string
 	replicaDB     *sql.DB
 	stager        *stage.Stager
-	lock          *dbconn.MetadataLock
+	lock          *dbconn.AdvisoryLock
 	runID         string
 	startedBy     string
 	table         string
@@ -316,7 +316,7 @@ func (sr *StageRunner) setStager(ctx context.Context, sb *boot.StageBooter) erro
 
 		// It could be in running state if the previous run failed before marking the run as failed, possibly due to
 		// DB connection failure.
-		// As we acquire the metadata lock on the table prior to this, we can safely assume that the previous run is not running.
+		// As we acquire the advisory lock on the table prior to this, we can safely assume that the previous run is not running.
 	case Failed.String(), Running.String(), Started.String():
 		chkpnt, tryNum, err = sr.getChkPtAndTryNumForResume(ctx, run)
 		if err != nil {
@@ -411,7 +411,7 @@ func (sr *StageRunner) boot(ctx context.Context) (*boot.StageBooter, error) {
 	// This is the same lock acquired by Spirit when running migrations, so that we prevent migrations and archives running at same time on the same table.
 	// see: https://github.com/block/spirit/blob/c3968034254052c56a4ee7f07eced13cabfa2b1a/pkg/migration/runner.go#L205
 	dbConfig := dbconn.NewDBConfig()
-	sr.lock, err = dbconn.NewMetadataLock(ctx, sr.dsn, []*table.TableInfo{srcTbl}, dbConfig, slog.Default())
+	sr.lock, err = dbconn.NewAdvisoryLock(ctx, sr.dsn, []*table.TableInfo{srcTbl}, dbConfig, slog.Default())
 	if err != nil {
 		return nil, err
 	}

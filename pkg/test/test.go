@@ -104,7 +104,7 @@ func TableExists(t *testing.T, schema, table string, db *sql.DB) bool {
 
 func LockExists(t *testing.T, db *sql.DB, tableName string) bool {
 	t.Helper()
-	var lock *dbconn.MetadataLock
+	var lock *dbconn.AdvisoryLock
 	defer func() {
 		// Release the lock
 		if lock != nil {
@@ -120,7 +120,7 @@ func LockExists(t *testing.T, db *sql.DB, tableName string) bool {
 	// Try to get advisory lock on the table, if there is an error then the lock already exists
 	dbConfig := dbconn.NewDBConfig()
 	logger := slog.Default()
-	lock, err = dbconn.NewMetadataLock(context.Background(), DSN(), []*table.TableInfo{srcTbl}, dbConfig, logger)
+	lock, err = dbconn.NewAdvisoryLock(context.Background(), DSN(), []*table.TableInfo{srcTbl}, dbConfig, logger)
 
 	return err != nil
 }
