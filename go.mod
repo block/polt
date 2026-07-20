@@ -1,6 +1,6 @@
 module github.com/block/polt
 
-go 1.26.1
+go 1.26.5
 
 require (
 	github.com/alecthomas/kong v1.15.0
@@ -13,12 +13,12 @@ require (
 	github.com/siddontang/loggers v1.0.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/sync v0.21.0
+	golang.org/x/sync v0.22.0
 )
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
-	github.com/block/spirit v0.15.2-0.20260702163828-5b931ace8482
+	github.com/block/spirit v0.15.2-0.20260717204329-9dd2b80e44ca
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 )
 
