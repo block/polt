@@ -357,7 +357,7 @@ func TestResumeFromCheckpoint(t *testing.T) {
 			// Cancel the stager forcefully as soon as we notice data in checkpoints table
 			if test.TableExists(t, auditDB, checkpointsTbl, db) && test.GetCount(t, db, "polt.checkpoints_runid", "1=1") > 0 &&
 				test.GetCount(t, db, "polt.runs", "run_id='runid'") > 0 {
-				// Check that the metadata lock with table name exists while stage runner is running.
+				// Check that the advisory lock with table name exists while stage runner is running.
 				assert.True(t, test.LockExists(t, db, "sr_cpt1"))
 				cancel()
 
@@ -555,7 +555,7 @@ func TestResumeFromDBFailure(t *testing.T) {
 			// Fail the stager forcefully as soon as we notice data in checkpoints table
 			if test.TableExists(t, auditDB, checkpointsTbl, db) && test.GetCount(t, db, "polt.checkpoints_runid2", "1=1") > 0 &&
 				test.GetCount(t, db, "polt.runs", "run_id='runid2'") > 0 {
-				// Check that the metadata lock with table name exists while stage runner is running.
+				// Check that the advisory lock with table name exists while stage runner is running.
 				assert.True(t, test.LockExists(t, db, "sr_cpt2"))
 				// Simulate DB failure and stage failure by closing the connection.
 				_ = s.db.Close() // Ignore error during cleanup

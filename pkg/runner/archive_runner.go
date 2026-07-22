@@ -27,7 +27,7 @@ const archiveMode = "archive"
 type ArchiveRunner struct {
 	archiver archive.Archiver
 	db       *sql.DB
-	lock     *dbconn.MetadataLock
+	lock     *dbconn.AdvisoryLock
 	// Attached logger
 	logger loggers.Advanced
 
@@ -264,7 +264,7 @@ func (ar *ArchiveRunner) boot(ctx context.Context) (*boot.ArchiveBooter, error) 
 	}
 	// Get advisory lock on the table, this will be unlocked in Close() method.
 	dbConfig := dbconn.NewDBConfig()
-	ar.lock, err = dbconn.NewMetadataLock(ctx, ar.dsn, []*table.TableInfo{ab.SrcTbl}, dbConfig, slog.Default())
+	ar.lock, err = dbconn.NewAdvisoryLock(ctx, ar.dsn, []*table.TableInfo{ab.SrcTbl}, dbConfig, slog.Default())
 	if err != nil {
 		return nil, fmt.Errorf("failed to acquire advisory lock for staging: %w", err)
 	}
