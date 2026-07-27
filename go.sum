@@ -50,8 +50,8 @@ github.com/aws/aws-sdk-go-v2/service/sts v1.33.9 h1:BRVDbewN6VZcwr+FBOszDKvYeXY1
 github.com/aws/aws-sdk-go-v2/service/sts v1.33.9/go.mod h1:f6vjfZER1M17Fokn0IzssOTMT2N8ZSq+7jnNF0tArvw=
 github.com/aws/smithy-go v1.22.1 h1:/HPHZQ0g7f4eUeK6HKglFz8uwVfZKgoI25rb/J+dnro=
 github.com/aws/smithy-go v1.22.1/go.mod h1:irrKGvNn1InZwb2d7fkIRNucdfwR8R+Ts3wxYa/cJHg=
-github.com/block/spirit v0.15.2-0.20260722224152-19ef8b5047ed h1:ofmBHsjEYnE+DO425H15uoWBbt8tBusUMx2xyNHxaxM=
-github.com/block/spirit v0.15.2-0.20260722224152-19ef8b5047ed/go.mod h1:NeJcaVY5Sfwd11iDgR3hz8aYB9XSLSxfGTguu9Wj2Dg=
+github.com/block/spirit v0.15.2-0.20260727035859-220f8b6cfca1 h1:XQKA14r8Fuhb8A5La5qjY7PXfpmjsFkO9nQ4Hownykw=
+github.com/block/spirit v0.15.2-0.20260727035859-220f8b6cfca1/go.mod h1:eSX+yt8Ukl+v7ZMNLuVbBreM+2X4gDnR+ree6rLM6tQ=
 github.com/coreos/go-semver v0.3.1 h1:yi21YpKnrx1gt5R+la8n5WgS0kCrsPp33dmEyHReZr4=
 github.com/coreos/go-semver v0.3.1/go.mod h1:irMmmIw/7yzSRPWryHsK7EYSg09caPQL03VsM8rvUec=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
