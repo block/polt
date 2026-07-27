@@ -75,3 +75,6 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+// TEMP(2026-07): pin fork for JSON render-fidelity fixes; remove once upstream go-mysql includes the formatMySQLDouble + zero-temporal opaque fixes.
+replace github.com/go-mysql-org/go-mysql => github.com/morgo/go-mysql v1.16.1-0.20260723231236-3aced1dddcf4
