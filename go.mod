@@ -18,7 +18,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
-	github.com/block/spirit v0.15.2-0.20260731132010-e94e99be2c1b
+	github.com/block/spirit v0.16.1-0.20260808013537-864cf2ee6b6b
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 )
 
@@ -75,3 +75,8 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+// Mirror spirit's own replace. Go ignores replace directives from dependencies,
+// so without this line spirit is compiled here against the upstream TiDB parser
+// rather than the Block fork it expects (SPATIAL index support, block/tidb#1).
+replace github.com/pingcap/tidb/pkg/parser => github.com/block/tidb/pkg/parser v0.0.0-20260506200501-e528fd979fc8

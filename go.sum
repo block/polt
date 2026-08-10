@@ -50,8 +50,10 @@ github.com/aws/aws-sdk-go-v2/service/sts v1.33.9 h1:BRVDbewN6VZcwr+FBOszDKvYeXY1
 github.com/aws/aws-sdk-go-v2/service/sts v1.33.9/go.mod h1:f6vjfZER1M17Fokn0IzssOTMT2N8ZSq+7jnNF0tArvw=
 github.com/aws/smithy-go v1.22.1 h1:/HPHZQ0g7f4eUeK6HKglFz8uwVfZKgoI25rb/J+dnro=
 github.com/aws/smithy-go v1.22.1/go.mod h1:irrKGvNn1InZwb2d7fkIRNucdfwR8R+Ts3wxYa/cJHg=
-github.com/block/spirit v0.15.2-0.20260731132010-e94e99be2c1b h1:Eimx5kTnpoxXKjl42PSPIvWIIJEDIxq8Y1bAiVxdYQU=
-github.com/block/spirit v0.15.2-0.20260731132010-e94e99be2c1b/go.mod h1:+ztqAd6YaMx844cr3/GnxWh+vqyOBHHApW7eAg92BW0=
+github.com/block/spirit v0.16.1-0.20260808013537-864cf2ee6b6b h1:Z12hyvAmkzjVlZeKHejfRbr+nytBB6DeneF+aAmI/Rs=
+github.com/block/spirit v0.16.1-0.20260808013537-864cf2ee6b6b/go.mod h1:aR9KJ8sca3Lo5IpwH6ZGRqK2zdl4Ukhuh7jNdBCRdDk=
+github.com/block/tidb/pkg/parser v0.0.0-20260506200501-e528fd979fc8 h1:+OfdTacrEyjlqcRUpBFX9uJ6ROBq6cUjwY4DClhnsdU=
+github.com/block/tidb/pkg/parser v0.0.0-20260506200501-e528fd979fc8/go.mod h1:zDLDsfNBU5+L6T4J9/OgWAHc/WZvMUjbpgHqQ/t3yKo=
 github.com/coreos/go-semver v0.3.1 h1:yi21YpKnrx1gt5R+la8n5WgS0kCrsPp33dmEyHReZr4=
 github.com/coreos/go-semver v0.3.1/go.mod h1:irMmmIw/7yzSRPWryHsK7EYSg09caPQL03VsM8rvUec=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
@@ -104,8 +106,6 @@ github.com/pingcap/failpoint v0.0.0-20260406204437-bbc9d102c19e h1:il8go9El5o10E
 github.com/pingcap/failpoint v0.0.0-20260406204437-bbc9d102c19e/go.mod h1:jimwlLpI/XtwQdlZML15HS+j4rirvwZM0GLY07wwgOo=
 github.com/pingcap/log v1.1.1-0.20260227082333-572e590d08f1 h1:A2bEfgSb7hLwR9mxDszgGKweF+xY9YoTDG+8RjdFjDE=
 github.com/pingcap/log v1.1.1-0.20260227082333-572e590d08f1/go.mod h1:pxfz2oJfAuhwrb3/rcLqD//GS/5gRP4gD022iP3cEO0=
-github.com/pingcap/tidb/pkg/parser v0.0.0-20260504140133-511dba1dbe17 h1:cfAVPis6GP6lxQgm1WGaNGi4rVXTB4KDvYf96LjqRCM=
-github.com/pingcap/tidb/pkg/parser v0.0.0-20260504140133-511dba1dbe17/go.mod h1:zDLDsfNBU5+L6T4J9/OgWAHc/WZvMUjbpgHqQ/t3yKo=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
