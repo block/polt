@@ -22,7 +22,7 @@ func Validate(query string, db *sql.DB) (string, error) {
 	// Extract the where clause string
 	whereStr, err := restoreString(stmt.Where)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("could not restore WHERE clause: %w", err)
 	}
 
 	return whereStr, nil
