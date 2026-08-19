@@ -7,8 +7,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/pingcap/tidb/pkg/parser/ast"
-	"github.com/pingcap/tidb/pkg/parser/format"
+	"github.com/block/spirit/pkg/parser/ast"
+	"github.com/block/spirit/pkg/parser/format"
 )
 
 // foldableFns is copied from https://github.com/pingcap/tidb/blob/41ba7bfff37703ac8857bc01f5bb82eb8bf3771b/expression/function_traits.go#L138
@@ -40,9 +40,6 @@ var unfoldableFns = []string{
 	ast.GetParam,
 	ast.Benchmark,
 	ast.DayName,
-	ast.NextVal,
-	ast.LastVal,
-	ast.SetVal,
 	ast.AnyValue,
 }
 

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/pingcap/tidb/pkg/parser"
-	"github.com/pingcap/tidb/pkg/parser/ast"
-	"github.com/pingcap/tidb/pkg/parser/mysql"
+	"github.com/block/spirit/pkg/parser"
+	"github.com/block/spirit/pkg/parser/ast"
+	"github.com/block/spirit/pkg/parser/mysql"
 )
 
 var errNonSelectStmt = errors.New("is not a SELECT statement type")

@@ -32,7 +32,7 @@ func Test_Validate(t *testing.T) {
 	// test valid query
 	condition, err := Validate("SELECT * FROM t1_q WHERE name = 'harry'", db)
 	require.NoError(t, err)
-	assert.Equal(t, "`name` = \"harry\"", condition)
+	assert.Equal(t, "`name`=_UTF8MB4'harry'", condition)
 
 	// test non existent column
 	_, err = Validate("SELECT * FROM t1_q WHERE age > 20", db)
