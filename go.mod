@@ -17,7 +17,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
-	github.com/block/spirit v0.16.1-0.20260818201143-cc006c921a50
+	github.com/block/spirit v0.16.1-0.20260823164009-c94423ea1815
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 )
 
