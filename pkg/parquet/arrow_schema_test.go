@@ -21,7 +21,7 @@ func TestMysqlToArrowSchema(t *testing.T) {
 		PRIMARY KEY (id)
 	)`
 	test.RunSQL(t, tbl)
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 	aSchema, err := MysqlToArrowSchema(db, "schema_test")
 	require.NoError(t, err)

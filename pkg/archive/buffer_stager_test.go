@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/block/mysql"
 	"github.com/block/polt/pkg/parquet"
 	"github.com/block/polt/pkg/stage"
 	"github.com/block/polt/pkg/test"
 	"github.com/block/spirit/pkg/table"
-	"github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
@@ -20,7 +20,7 @@ func TestNewBufferStager(t *testing.T) {
 
 	cfg, err := mysql.ParseDSN(test.DSN())
 	require.NoError(t, err)
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 
 	tbl := `CREATE TABLE _t1_ia_stage_buffer_runid (

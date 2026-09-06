@@ -3,8 +3,8 @@ package boot
 import (
 	"testing"
 
+	"github.com/block/mysql"
 	"github.com/block/polt/pkg/test"
-	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/require"
 )
 

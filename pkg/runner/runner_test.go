@@ -15,7 +15,7 @@ func TestRunEntry(t *testing.T) {
 	// Create a new run entry
 	// Check that the run entry is created correctly
 	test.RunSQL(t, "DROP TABLE IF EXISTS polt.runs")
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 	defer func() {
 		if closeErr := db.Close(); closeErr != nil {

@@ -93,7 +93,7 @@ func TestNewParquetManagerFlush(t *testing.T) {
 	test.RunSQL(t, "INSERT INTO t_flush (id) VALUES (2)")
 	test.RunSQL(t, "INSERT INTO t_flush (id) VALUES (3)")
 
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 	ti := table.NewTableInfo(db, "test", "t_flush")
 	err = ti.SetInfo(context.Background())

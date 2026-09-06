@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"testing"
 
+	"github.com/block/mysql"
 	"github.com/block/spirit/pkg/table"
-	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/require"
 
 	"github.com/block/polt/pkg/test"
@@ -31,7 +31,7 @@ func TestTableArchiver_Move(t *testing.T) {
 
 	cfg, err := mysql.ParseDSN(test.DSN())
 	require.NoError(t, err)
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 
 	stagedCount := test.GetCount(t, db, "_t1_ia_stage_runid", "1=1")

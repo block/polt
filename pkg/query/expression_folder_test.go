@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/block/mysql"
 	"github.com/block/polt/pkg/test"
 	"github.com/block/spirit/pkg/table"
-	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -30,7 +30,7 @@ func Test_PreEvaluate(t *testing.T) {
 	// For the purpose of this test SET TIMESTAMP = 1696911031 and SET TIME_ZONE='UTC',
 	// which returns the fixed value for NOW() as '2023-10-10 04:10:31'
 	timeZone := fmt.Sprintf("%s=%s", "time_zone", url.QueryEscape(`"+00:00"`))
-	db, err := sql.Open("mysql", test.DSN()+"?timestamp=1696911031&"+timeZone)
+	db, err := sql.Open("block-mysql", test.DSN()+"?timestamp=1696911031&"+timeZone)
 	require.NoError(t, err)
 
 	srcTbl := table.NewTableInfo(db, cfg.DBName, "t1_q")
