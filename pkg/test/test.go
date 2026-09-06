@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/block/mysql"
 	"github.com/block/spirit/pkg/dbconn"
 	"github.com/block/spirit/pkg/table"
-	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/require"
 )
 
@@ -29,7 +29,7 @@ func ReplicaDSN() string {
 
 func RunSQL(t *testing.T, stmt string) {
 	t.Helper()
-	db, err := sql.Open("mysql", DSN())
+	db, err := sql.Open("block-mysql", DSN())
 	require.NoError(t, err)
 	defer func() {
 		if closeErr := db.Close(); closeErr != nil {

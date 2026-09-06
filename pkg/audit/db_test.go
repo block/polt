@@ -12,7 +12,7 @@ import (
 func TestCreateAuditDB(t *testing.T) {
 	// Create a new audit database
 	// Check that the audit database is created correctly
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 	defer func() {
 		if closeErr := db.Close(); closeErr != nil {
@@ -30,7 +30,7 @@ func TestCreateAuditDB(t *testing.T) {
 func TestCreateCheckpointTbl(t *testing.T) {
 	// Create a new checkpoint table
 	// Check that the checkpoint table is created correctly
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 	defer func() {
 		if closeErr := db.Close(); closeErr != nil {
@@ -50,7 +50,7 @@ func TestCreateCheckpointTbl(t *testing.T) {
 func TestCreateRunsTbl(t *testing.T) {
 	// Create a new runs table
 	// Check that the runs table is created correctly
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 	defer func() {
 		if closeErr := db.Close(); closeErr != nil {

@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/block/mysql"
 	"github.com/block/polt/pkg/query"
 	"github.com/block/polt/pkg/test"
 	"github.com/block/spirit/pkg/table"
-	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -28,7 +28,7 @@ func TestStageBooter_Setup(t *testing.T) {
 	cfg, err := mysql.ParseDSN(test.DSN())
 	require.NoError(t, err)
 
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 	srcTbl := table.NewTableInfo(db, cfg.DBName, "t1_sb")
 	err = srcTbl.SetInfo(context.Background())
@@ -59,7 +59,7 @@ func TestStageBooter_PreflightChecks(t *testing.T) {
 	cfg, err := mysql.ParseDSN(test.DSN())
 	require.NoError(t, err)
 
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 	srcTbl := table.NewTableInfo(db, cfg.DBName, "t1_sb")
 	err = srcTbl.SetInfo(context.Background())
@@ -92,9 +92,9 @@ func TestStageBooter_PreflightChecks_ReplicaHealth(t *testing.T) {
 	cfg, err := mysql.ParseDSN(test.DSN())
 	require.NoError(t, err)
 
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
-	replicadb, err := sql.Open("mysql", test.ReplicaDSN())
+	replicadb, err := sql.Open("block-mysql", test.ReplicaDSN())
 	require.NoError(t, err)
 	srcTbl := table.NewTableInfo(db, cfg.DBName, "t1_sb")
 	err = srcTbl.SetInfo(context.Background())
@@ -105,7 +105,7 @@ func TestStageBooter_PreflightChecks_ReplicaHealth(t *testing.T) {
 
 	// use a completely invalid DSN.
 	// golang sql.Open lazy loads, so this is possible.
-	replicadb, err = sql.Open("mysql", "msandbox:msandbox@tcp(127.0.0.1:22)/test")
+	replicadb, err = sql.Open("block-mysql", "msandbox:msandbox@tcp(127.0.0.1:22)/test")
 	require.NoError(t, err)
 	s = NewStageBooter(&StageBooterConfig{AuditDB: "polt", Query: "SELECT * from t1_sb WHERE name = 'harry'", RunID: "runid", DB: db, SrcTbl: srcTbl, Replica: replicadb})
 
@@ -133,7 +133,7 @@ func TestStageBooter_PreflightChecks_PreEvalQuery(t *testing.T) {
 	// For the purpose of this test SET TIMESTAMP = 1696911031 and SET TIME_ZONE='UTC',
 	// which returns the fixed value for NOW() as '2023-10-10 04:10:31'
 	timeZone := fmt.Sprintf("%s=%s", "time_zone", url.QueryEscape(`"+00:00"`))
-	db, err := sql.Open("mysql", test.DSN()+"?timestamp=1696911031&"+timeZone)
+	db, err := sql.Open("block-mysql", test.DSN()+"?timestamp=1696911031&"+timeZone)
 	require.NoError(t, err)
 
 	srcTbl := table.NewTableInfo(db, cfg.DBName, "t1_sb")

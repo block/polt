@@ -18,7 +18,7 @@ func Test_Explain(t *testing.T) {
 	)`
 	test.RunSQL(t, tbl)
 
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 
 	query := "SELECT * FROM t1_q WHERE name = 'harry'"

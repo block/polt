@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"testing"
 
+	"github.com/block/mysql"
 	"github.com/block/polt/pkg/test"
 	"github.com/block/spirit/pkg/table"
-	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +23,7 @@ func Test_Validate(t *testing.T) {
 	cfg, err := mysql.ParseDSN(test.DSN())
 	require.NoError(t, err)
 
-	db, err := sql.Open("mysql", test.DSN())
+	db, err := sql.Open("block-mysql", test.DSN())
 	require.NoError(t, err)
 	srcTbl := table.NewTableInfo(db, cfg.DBName, "t1_q")
 	err = srcTbl.SetInfo(context.Background())
