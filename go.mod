@@ -17,7 +17,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
-	github.com/block/spirit v0.17.1-0.20260906201921-2d412cd16671
+	github.com/block/spirit v0.17.1-0.20260906214441-dc3d4c9f4c3b
 )
 
 require (

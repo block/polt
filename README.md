@@ -55,5 +55,5 @@ For more details about parquet format , see [Parquet File Format](https://parque
 -  If the S3 archive job fails, it is resumable , but there might be some data duplication in the destination due to the nature of chunking and the checkpointing mechanism. Future versions may address this issue. But until then you can refer to this example Glue(spark) job to remove duplicates from parquet files and insert to iceberg table. [Remove Duplicates from Parquet Files](examples/remove_duplicates_from_parquet_files.py)
 
 ## Dependencies
-* Relies on [mysql-client-driver](https://github.com/go-sql-driver/mysql) for connecting to MySQL databases.
+* Relies on [block/mysql](https://github.com/block/mysql), Block's fork of [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql), for connecting to MySQL databases. It registers under the driver name `block-mysql`.
 * Relies on [Spirit](https://github.com/block/spirit) for chunking the data that needs to be archived and also for many other utilities related to db connection, loading table metadata etc.
