@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.33.0
 	github.com/aws/aws-sdk-go-v2/config v1.29.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.73.2
-	github.com/block/mysql v0.0.0-20260906201522-a3178f8dca69
+	github.com/block/mysql v0.0.0-20260906224346-ee0a93fe50d6
 	github.com/siddontang/loggers v1.0.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.12.1
@@ -17,7 +17,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
-	github.com/block/spirit v0.17.1-0.20260906214441-dc3d4c9f4c3b
+	github.com/block/spirit v0.17.1-0.20260908172838-1ab2595e45a1
 )
 
 require (
