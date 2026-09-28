@@ -190,7 +190,7 @@ func (s *Stager) stageChunkWithTx(ctx context.Context, i int, chunk *table.Chunk
 	var err error
 	var tx *sql.Tx
 	var copiedRows int64
-	tx, _, err = dbconn.BeginStandardTrx(ctx, s.db, &sql.TxOptions{Isolation: sql.LevelRepeatableRead})
+	tx, err = s.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelRepeatableRead})
 	if err != nil {
 		return -1, err
 	}
