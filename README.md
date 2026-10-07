@@ -5,6 +5,10 @@ AWS S3, or permanent deletion (aka sending data to /dev/null).
 
 ## Prerequesites
 - MySQL 8.0
+- If the source table has an `ENUM` or `SET` column with a `?` in any member, the polt user needs the `CREATE TEMPORARY TABLES`
+  privilege on the source schema. MySQL reports each member character outside utf8mb3 as `?`, so Spirit, which polt uses to load
+  table metadata, reads the stored members back through a temporary table. Without the privilege, polt fails at startup,
+  before it moves any rows.
 
 ## License
 The primary license for polt is [Apache 2.0](./LICENSE), however some files are licensed under MPL 2.0 (as indicated in their SPDX headers).

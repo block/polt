@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.29.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.73.2
 	github.com/block/mysql v0.0.0-20260906224346-ee0a93fe50d6
-	github.com/block/spirit v0.17.1-0.20260927194011-ac7805a27d27
+	github.com/block/spirit v0.18.1-0.20261007152549-f4b40ed36612
 	github.com/siddontang/loggers v1.0.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.12.1
