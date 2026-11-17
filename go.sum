@@ -50,8 +50,8 @@ github.com/aws/aws-sdk-go-v2/service/sts v1.52.0 h1:IaBLmJWiIEtKkjXMgMbYGZk7WKXb
 github.com/aws/aws-sdk-go-v2/service/sts v1.52.0/go.mod h1:MG6N8U9+lY4LqchrlHPqCOSr7hyxw70XU0Et2YR3eNA=
 github.com/aws/smithy-go v1.28.9 h1:zkZ058OpNX0iGTK24b+ZUEQSMc11CBA6oO7xtKZfzkY=
 github.com/aws/smithy-go v1.28.9/go.mod h1:YE2RhdIuDbA5E5bTdciG9KrW3+TiEONeUWCqxX9i1Fc=
-github.com/block/mysql v0.0.0-20260906224346-ee0a93fe50d6 h1:GvubwsqXHanJkhBotCs4XdEmSnwzhHQe7DVGrn+NFok=
-github.com/block/mysql v0.0.0-20260906224346-ee0a93fe50d6/go.mod h1:KEo73lbxXs9cFlq+x3Z35UqGg3MTxAPfjDOR/ob/iik=
+github.com/block/mysql v0.0.0-20261117230711-208b4ce0ea9a h1:Tz66FnUgWf0nNX67Nrg7v3Qt5v/CyTS5TW5rJurKrL0=
+github.com/block/mysql v0.0.0-20261117230711-208b4ce0ea9a/go.mod h1:wDg8WaLyE0hOWL/WteFihtvn6+Rm4vkeuFwiiggfvP4=
 github.com/block/spirit v0.18.1-0.20261007152549-f4b40ed36612 h1:mzKz4WdQYi5LKtFHWiqmGNRRsGjf0ngagS9xG+aJF3A=
 github.com/block/spirit v0.18.1-0.20261007152549-f4b40ed36612/go.mod h1:WBkD/Eg+VonV5AIeF7P0+/27SH7oG0qUMPpvdpIKPD8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
